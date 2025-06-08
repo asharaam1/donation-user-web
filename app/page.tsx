@@ -7,7 +7,7 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/auth/signup');
+    router.push('/auth/login');
   }, [router]);
 
   return null;
