@@ -1,8 +1,14 @@
-import React from 'react'
-import LoginPage from './auth/Login/page';
+"use client";
 
-const page = () => {
-  return <LoginPage />
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function Page() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push('/auth/signup');
+  }, [router]);
+
+  return null;
 }
-
-export default page;
