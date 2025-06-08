@@ -1,8 +1,14 @@
 import React from 'react'
-import LoginPage from './auth/Login/page';
+// import LoginPage from './auth/Login/page';
+
+import About from './about/page';
 
 const page = () => {
-  return <LoginPage />
+  return <About/>;
+  // return <LoginPage />
 }
 
 export default page;
+
+
+/// new 
