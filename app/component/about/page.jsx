@@ -2,16 +2,14 @@ export default function AboutUsSection() {
   return (
     <section className="bg-gradient-to-r m-20 from-orange-50 via-white to-white py-16 px-6 flex flex-col md:flex-row items-center justify-center max-w-7xl mx-auto">
 
-      {/* Left Section */}
       <div className="relative w-full md:w-1/2">
-        {/* Image 1 - Top Left */}
+ 
         <img
           src="https://cdn.pixabay.com/photo/2018/07/19/08/51/old-man-3548098_1280.jpg"
           alt="Old Man"
           className="rounded-xl w-72 h-70 object-cover mb-50 z-10 relative"
         />
 
-        {/* Image 2 - Bottom Right overlapping */}
         <img
           src="https://cdn.pixabay.com/photo/2015/07/20/06/53/man-852423_640.jpg"
           alt="Poor Boy"
@@ -20,7 +18,7 @@ export default function AboutUsSection() {
 
         {/* Orange Card */}
         <div className="absolute bottom-[30px] left-0 bg-orange-300 text-white p-5 rounded-xl flex items-center space-x-4 w-70 shadow-lg z-20">
-          <div className="text-4xl">💖</div>
+          <div className="text-4xl">💖:</div>
           <div>
             <div className="text-3xl font-bold">250+</div>
             <div className="text-lg">Services we provide</div>

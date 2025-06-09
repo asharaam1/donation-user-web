@@ -11,7 +11,7 @@ export default function HeroSection() {
         backgroundBlendMode: 'overlay',
       }}
     >
-      {/* Overlay for color gradient */}
+
       <div className="absolute inset-0 bg-gradient-to-r from-green-400 via-blue-500 to-orange-300 opacity-60 mix-blend-screen z-0"></div>
 
       <div className="relative z-10 max-w-5xl mx-auto flex flex-col justify-center h-full text-white px-6 md:px-0">
