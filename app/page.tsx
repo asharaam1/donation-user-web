@@ -3,8 +3,11 @@ import React from 'react'
 
 import About from './about/page';
 
+import Contact from './contact/page';
+
 const page = () => {
-  return <About/>;
+  return <Contact/>;
+  // return <About/>;
   // return <LoginPage />
 }
 
