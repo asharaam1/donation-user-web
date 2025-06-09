@@ -833,9 +833,8 @@ const about = () => {
   return (
     <>
       <div className='h-full'>
-        {/* Hero Image with Fade-in */}
         <motion.img 
-          src="/about image.GIF" 
+          src="/faq.GIF" 
           alt="About Us"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
