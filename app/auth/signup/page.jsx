@@ -70,7 +70,6 @@ export default function Signup() {
         userData.country = country;
         userData.mobile = mobile;
         userData.kycPhoto = kycPhotoURL;
-        userData.kycStatus = "pending";
       }
 
       await setDoc(doc(db, "users", user.uid), userData);
