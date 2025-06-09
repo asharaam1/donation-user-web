@@ -12,7 +12,7 @@ export default function HeroSection() {
       }}
     >
       {/* Overlay for color gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-green-400 via-blue-400 to-orange-300 opacity-60 mix-blend-screen z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-green-400 via-blue-500 to-orange-300 opacity-60 mix-blend-screen z-0"></div>
 
       <div className="relative z-10 max-w-5xl mx-auto flex flex-col justify-center h-full text-white px-6 md:px-0">
         <p className="text-3xl text-black font-serif mb-2">Serving Pakistan’s Communities.</p>
@@ -25,7 +25,6 @@ export default function HeroSection() {
         </button>
       </div>
 
-      {/* Left & Right Arrows */}
       <div className="absolute right-8 top-1/2 transform -translate-y-1/2 flex flex-col space-y-4 z-10">
         <button className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100 transition text-xl">
           ←
@@ -35,7 +34,6 @@ export default function HeroSection() {
         </button>
       </div>
 
-      {/* Easy Donation Box */}
       <div className="absolute bottom-8 right-8 bg-white text-black rounded-xl px-8 py-4 shadow-lg text-xl font-semibold z-10">
         Easy Donation
       </div>
