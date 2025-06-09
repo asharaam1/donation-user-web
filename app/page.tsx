@@ -1,6 +1,6 @@
-<<<<<<< HEAD
+
 import React from 'react'
-import LoginPage from './auth/Login/page';
+
 import Navbar from './component/navbar/page'
 import HeroSection from "./component/hero/page";
 import Donation from './component/page'
@@ -35,7 +35,8 @@ const page = () => {
 <Footer/>
     </div>
   )
-=======
+}
+
 import Image from "next/image";
 
 export default function Home() {
@@ -138,5 +139,5 @@ export default function Home() {
       </footer>
     </div>
   );
->>>>>>> parent of 8233043 (First Commit)
+
 }
