@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { app } from '../../utils/firebaseConfig';
 import { useRouter } from 'next/navigation';
 
@@ -35,9 +35,22 @@ export default function Login() {
         if (role === 'donor') {
           router.push('/donor-dashboard');
         } else if (role === 'needy') {
-          router.push('/needy-dashboard');
-        } else {
-          router.push('/dashboard');
+          const kycQuery = query(
+            collection(db, "kycRequests"),
+            where("userId", "==", user.uid)
+          );
+          const kycSnapshot = await getDocs(kycQuery);
+
+          if (!kycSnapshot.empty) {
+            const lastKYC = kycSnapshot.docs[kycSnapshot.docs.length - 1].data();
+            if (lastKYC.status === "approved") {
+              router.push('/needy/home');
+            } else {
+              router.push('/needy/kyc');
+            }
+          } else {
+            router.push('/needy/kyc');
+          }
         }
       } else {
         setError('User data not found!');
@@ -50,11 +63,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+    <div className="min-h-screen bg-[#000000] flex items-center justify-center px-4">
+      <div className="bg-[#1a1a1a] p-8 rounded-2xl shadow-xl w-full max-w-md border border-[#2a2a2a]">
         <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold">Login</h2>
-          <p className="mt-1 text-gray-500">Welcome back to Life Humanity</p>
+          <h2 className="text-3xl font-bold text-white">Login</h2>
+          <p className="mt-1 text-gray-400">Welcome back to <span className="text-[#ff5528] font-semibold">Life Humanity</span></p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
@@ -64,7 +77,7 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full px-4 py-3 bg-[#2a2a2a] border border-gray-700 text-white rounded-lg placeholder-gray-400 focus:ring-2 focus:ring-[#ff5528] focus:outline-none"
           />
 
           <input
@@ -73,7 +86,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full px-4 py-3 bg-[#2a2a2a] border border-gray-700 text-white rounded-lg placeholder-gray-400 focus:ring-2 focus:ring-[#ff5528] focus:outline-none"
           />
 
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
@@ -81,13 +94,13 @@ export default function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#ff5528] hover:bg-[#ff7f50] text-white font-semibold py-2 rounded-lg "
+            className="w-full bg-gradient-to-r from-[#ff5528] to-[#ff784e] text-black font-semibold py-3 rounded-full hover:opacity-90 transition-all"
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600 mt-4">
+        <p className="text-center text-sm text-gray-400 mt-4">
           Don&apos;t have an account?{' '}
           <Link href="/auth/signup" className="text-[#ff5528] hover:underline font-medium">
             Sign up here
