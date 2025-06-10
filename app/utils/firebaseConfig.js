@@ -3,13 +3,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAfASez0BnqEkEMxTLqJuE_bsmagV_IH_Y",
-  authDomain: "helpdesk-smit.firebaseapp.com",
-  projectId: "helpdesk-smit",
-  storageBucket: "helpdesk-smit.firebasestorage.app",
-  messagingSenderId: "516701942489",
-  appId: "1:516701942489:web:b0f487463f5aac641b84c8",
-  measurementId: "G-77BTEXTW14"
+  apiKey: "AIzaSyDKH_B4nqz61gkcaBPvabk_Pi7tz9vhNUU",
+  authDomain: "donation-app-10f97.firebaseapp.com",
+  projectId: "donation-app-10f97",
+  storageBucket: "donation-app-10f97.firebasestorage.app",
+  messagingSenderId: "597136163911",
+  appId: "1:597136163911:web:38ce8840dc46d7c9985d62"
 };
 
 const app = initializeApp(firebaseConfig);
