@@ -33,7 +33,7 @@ export default function Login() {
         const role = userData.role;
 
         if (role === 'donor') {
-          router.push('/donor-dashboard');
+          router.push('/donor/Home');
         } else if (role === 'needy') {
           router.push('/needy/home');
         }

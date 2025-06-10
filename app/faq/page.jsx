@@ -47,7 +47,7 @@ const FAQ = () => {
   return (
     <>
       <motion.img 
-        src="/about image.GIF" 
+        src="/faq.GIF" 
         alt="About Us"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
