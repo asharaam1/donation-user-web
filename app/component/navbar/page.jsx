@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation'
+
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -81,7 +83,7 @@ export default function Navbar() {
             </svg>
           </button>
           <button className="flex items-center border border-orange-500 rounded-full overflow-hidden">
-            <span className="px-4 py-2 text-sm font-semibold">DONATE NOW</span>
+            <span className="px-4 py-2 text-sm font-semibold"><Link href='/Donors-profile'>DONATE NOW</Link></span>
             <span className="bg-orange-500 text-white px-3 py-2 rounded-2xl">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
