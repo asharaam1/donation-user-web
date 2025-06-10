@@ -2,10 +2,18 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+
+import { Menu, X, ChevronDown } from 'lucide-react';
+import { useRouter } from 'next/navigation'
+
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter()
+
+  const handleNavigation = (path) => {
+    router.push(path)
+  }
 
   return (
     <header className="w-full shadow-sm">
@@ -17,14 +25,20 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6 text-[15px] font-medium">
-          {['Home', 'About',  'Donation', 'Blogs' ,   'Contact'].map((item, i) => (
-            <Link
+          {[
+            { name: 'Home', path: '/donor/Home' },
+            { name: 'About', path: '/about' },
+            { name: 'Donation', path: '/donor/Home' },
+            { name: 'FAQs', path: '/faq' },
+            { name: 'Contact', path: '/contact' }
+          ].map((item, i) => (
+            <button
               key={i}
-              href="#"
+              onClick={() => handleNavigation(item.path)}
               className="hover:text-orange-500 flex items-center gap-1"
             >
-              {item}
-            </Link>
+              {item.name}
+            </button>
           ))}
         </nav>
 
@@ -102,14 +116,20 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden px-4 pb-4">
           <nav className="flex flex-col gap-3 text-sm font-medium">
-            {['Home', 'About',  'Donation' , 'Blogs' ,  'Contact'].map((item, i) => (
-              <Link
+            {[
+              { name: 'Home', path: '/donor/Home' },
+              { name: 'About', path: '/about' },
+              { name: 'Donation', path: '/donor/Home' },
+              { name: 'Blogs', path: '/blogs' },
+              { name: 'Contact', path: '/contact' }
+            ].map((item, i) => (
+              <button
                 key={i}
-                href="#"
+                onClick={() => handleNavigation(item.path)}
                 className="hover:text-orange-500 flex items-center gap-1"
               >
-                {item}
-              </Link>
+                {item.name}
+              </button>
             ))}
           </nav>
         </div>
