@@ -35,22 +35,7 @@ export default function Login() {
         if (role === 'donor') {
           router.push('/donor-dashboard');
         } else if (role === 'needy') {
-          const kycQuery = query(
-            collection(db, "kycRequests"),
-            where("userId", "==", user.uid)
-          );
-          const kycSnapshot = await getDocs(kycQuery);
-
-          if (!kycSnapshot.empty) {
-            const lastKYC = kycSnapshot.docs[kycSnapshot.docs.length - 1].data();
-            if (lastKYC.status === "approved") {
-              router.push('/needy/home');
-            } else {
-              router.push('/needy/kyc');
-            }
-          } else {
-            router.push('/needy/kyc');
-          }
+          router.push('/needy/home');
         }
       } else {
         setError('User data not found!');
