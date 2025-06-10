@@ -1,6 +1,4 @@
 import React from 'react';
-
-import Navbar from './component/navbar/page'
 import HeroSection from "./component/hero/page";
 import Donation from './component/page'
 import About from './component/about/page'
@@ -13,12 +11,11 @@ import Sayabout from './component/sayaboutus/page'
 import Blogs from './component/blogs/page'
 import World from './component/topworld/page'
 import Comunity from './component/compunity/page'
-import Footer from './component/footer/page'
+
 
 const page = () => {
   return (
     <div>
-     <Navbar/>
      <HeroSection/>
      <Donation/>
      <About/>
@@ -31,7 +28,7 @@ const page = () => {
 <Blogs/>
 <World/>
 <Comunity/>
-<Footer/>
+
     </div>
   )
 }
