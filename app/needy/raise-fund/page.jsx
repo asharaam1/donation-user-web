@@ -11,6 +11,9 @@ import {
   addDoc,
   collection,
   updateDoc,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
 
@@ -92,12 +95,27 @@ const RaiseFund = () => {
 
     setKycLoading(true);
     try {
+      const user = auth.currentUser;
+      
+      // Check if user already has a KYC request
+      const kycQuery = query(
+        collection(db, "kycRequests"),
+        where("userId", "==", user.uid)
+      );
+      const kycSnapshot = await getDocs(kycQuery);
+      
+      if (!kycSnapshot.empty) {
+        alert("You have already submitted KYC. Please wait for approval.");
+        setKycLoading(false);
+        return;
+      }
+
       const [frontUrl, backUrl, selfieUrl] = await Promise.all([
         uploadToCloudinary(cnicFront, "kyc"),
         uploadToCloudinary(cnicBack, "kyc"),
         uploadToCloudinary(selfie, "kyc"),
       ]);
-      const user = auth.currentUser;
+      // const user = auth.currentUser;
       await addDoc(collection(db, "kycRequests"), {
         userId: user.uid,
         cnicFrontUrl: frontUrl,
@@ -108,11 +126,11 @@ const RaiseFund = () => {
         status: "pending",
         createdAt: new Date(),
       });
-      const userDocRef = doc(db, "users", user.uid);
-      await updateDoc(userDocRef, { kycStatus: "pending" });
+      // const userDocRef = doc(db, "users", user.uid);
+      // await updateDoc(userDocRef, { kycStatus: "pending" });
       alert("KYC submitted successfully. Please wait for approval.");
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) setUserData(userDoc.data());
+      // const userDoc = await getDoc(userDocRef);
+      // if (userDoc.exists()) setUserData(userDoc.data());
       setCnicFront(null);
       setCnicBack(null);
       setAddress("");
@@ -151,6 +169,27 @@ const RaiseFund = () => {
     }
     setFundLoading(false);
   };
+
+  // const handleRaiseFund = async () => {
+  //   if (!userData || userData.kycStatus !== "approved") {
+  //     const user = auth.currentUser;
+  //     // Check if user already has a pending KYC request
+  //     const kycQuery = query(
+  //       collection(db, "kycRequests"),
+  //       where("userId", "==", user.uid),
+  //       where("status", "==", "pending")
+  //     );
+  //     const kycSnapshot = await getDocs(kycQuery);
+      
+  //     if (!kycSnapshot.empty) {
+  //       alert("Your KYC request is already pending. Please wait for approval.");
+  //       return;
+  //     }
+  //     setShowKycForm(true);
+  //     return;
+  //   }
+  //   setShowFundForm(true);
+  // };
 
   if (loading) {
     return (

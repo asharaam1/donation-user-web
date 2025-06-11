@@ -7,6 +7,7 @@ import LoginPage from './auth/login/page';
 // import Contact from './contact/page';
 // import Faq from './faq/page';
 // import Terms from './terms/page';
+import Index from './donor/give/page';
 
 
 const page = () => {
@@ -15,7 +16,8 @@ const page = () => {
   // return <Contact/>;
   // return <About/>;
    // return <Terms/>
-  return <LoginPage />
+  // return <LoginPage />
+  return <Index />
 
 
 

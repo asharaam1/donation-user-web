@@ -3,6 +3,9 @@
 import React from "react";
 import { FaMedal, FaHandHoldingHeart, FaCalendarAlt, FaHeart } from "react-icons/fa";
 import { motion } from "framer-motion";
+import Navbar from "@/app/component/navbar/page";
+import Footer from '../../component/footer/page'
+
 
 const DonorProfile = () => {
   const contributions = [
@@ -14,7 +17,9 @@ const DonorProfile = () => {
   ];
 
   return (
+   
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-12 px-4 sm:px-6">
+      <Navbar/>
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
@@ -131,6 +136,7 @@ const DonorProfile = () => {
           </motion.div>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

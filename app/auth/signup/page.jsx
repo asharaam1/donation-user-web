@@ -21,6 +21,7 @@ export default function Signup() {
   const [country, setCountry] = useState("");
   const [mobile, setMobile] = useState("");
   const [kycFile, setKycFile] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
 
@@ -55,8 +56,14 @@ export default function Signup() {
       const user = userCredential.user;
 
       let kycPhotoURL = "";
+      let profileImageURL = "";
+
       if (role === "needy" && kycFile) {
         kycPhotoURL = await uploadToCloudinary(kycFile);
+      }
+
+      if (role === "donor" && profileImage) {
+        profileImageURL = await uploadToCloudinary(profileImage);
       }
 
       const userData = {
@@ -70,6 +77,8 @@ export default function Signup() {
         userData.country = country;
         userData.mobile = mobile;
         userData.kycPhoto = kycPhotoURL;
+      } else if (role === "donor") {
+        userData.profileImage = profileImageURL;
       }
 
       await setDoc(doc(db, "users", user.uid), userData);
@@ -165,6 +174,15 @@ export default function Signup() {
                 className="mt-1 w-full text-sm text-white file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-[#ff5528] file:text-white hover:file:bg-[#ff7f50] file:cursor-pointer file:transition file:duration-300"
               />
             </>
+          )}
+
+          {role === "donor" && (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setProfileImage(e.target.files[0])}
+              className="mt-1 w-full text-sm text-white file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-[#ff5528] file:text-white hover:file:bg-[#ff7f50] file:cursor-pointer file:transition file:duration-300"
+            />
           )}
 
           {error && <p className="text-red-500 text-sm">{error}</p>}

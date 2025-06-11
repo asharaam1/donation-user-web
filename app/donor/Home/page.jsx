@@ -1,6 +1,6 @@
 import Navbar from '../../component/navbar/page'
 import HeroSection from "../../component/hero/page"
-import Donation from '../../component/page'
+import Donation from '../../component/donation/page'
 import About from '../../component/about/page'
 import Charity from '../../component/charityfund/page'
 import Fund from '../../component/fund/page'
