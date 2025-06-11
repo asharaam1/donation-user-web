@@ -60,26 +60,31 @@ const RaiseFund = () => {
     if (file) setImage(file);
   };
 
- const captureSelfie = () => {
-  if (webcamRef.current) {
-    const imageSrc = webcamRef.current.getScreenshot();
-    if (!imageSrc) {
-      alert("Unable to capture selfie. Please allow camera access.");
-      return;
+  const captureSelfie = () => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      if (!imageSrc) {
+        alert("Unable to capture selfie. Please allow camera access.");
+        return;
+      }
+      fetch(imageSrc)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+          setSelfie(file);
+          console.log("Captured selfie file:", file);
+        });
     }
-    fetch(imageSrc)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
-        setSelfie(file);
-        console.log("Captured selfie file:", file);
-      });
-  }
-};
-
+  };
 
   const submitKyc = async () => {
-    if (!cnicFront || !cnicBack || !address.trim() || !mobile.trim() || !selfie) {
+    if (
+      !cnicFront ||
+      !cnicBack ||
+      !address.trim() ||
+      !mobile.trim() ||
+      !selfie
+    ) {
       alert("Please fill all KYC fields and capture selfie");
       return;
     }
@@ -100,6 +105,8 @@ const RaiseFund = () => {
       const user = auth.currentUser;
       await addDoc(collection(db, "kycRequests"), {
         userId: user.uid,
+        name: name || "",
+        email: email || "",
         cnicFrontUrl: frontUrl,
         cnicBackUrl: backUrl,
         selfieUrl: selfieUrl,
@@ -135,13 +142,23 @@ const RaiseFund = () => {
     setFundLoading(true);
     try {
       const user = auth.currentUser;
-      await addDoc(collection(db, "fundRaising"), {
-        userId: user.uid,
+      const userDocRef = doc(db, "users", user.uid);
+
+      const newRequest = {
         amount: Number(fundAmount),
         description: fundDescription.trim(),
         status: "pending",
         createdAt: new Date(),
+      };
+
+      const userSnap = await getDoc(userDocRef);
+      const existingData = userSnap.exists() ? userSnap.data() : {};
+      const existingRequests = existingData.fundRequests || [];
+
+      await updateDoc(userDocRef, {
+        fundRequests: [...existingRequests, newRequest],
       });
+
       alert("Fundraising request submitted!");
       setFundAmount("");
       setFundDescription("");
@@ -163,7 +180,9 @@ const RaiseFund = () => {
   if (!userData) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black text-white p-6">
-        <p className="text-xl text-red-400 font-semibold">Please login to continue.</p>
+        <p className="text-xl text-red-400 font-semibold">
+          Please login to continue.
+        </p>
       </div>
     );
   }
@@ -173,14 +192,12 @@ const RaiseFund = () => {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="min-h-screen bg-gradient-to-br from-[#0f0f0f] to-[#1e1e1e] text-white p-6 md:p-10"
-    >
-      <motion.div 
+      className="min-h-screen bg-gradient-to-br from-[#0f0f0f] to-[#1e1e1e] text-white p-6 md:p-10">
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="max-w-3xl mx-auto bg-[#121212] p-8 md:p-10 rounded-2xl shadow-2xl space-y-8 relative overflow-hidden"
-      >
+        className="max-w-3xl mx-auto bg-[#121212] p-8 md:p-10 rounded-2xl shadow-2xl space-y-8 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528] to-[#ff784e] transform rotate-12 scale-150"></div>
@@ -188,42 +205,42 @@ const RaiseFund = () => {
 
         {/* Content */}
         <div className="relative z-10">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-4xl md:text-5xl font-extrabold text-center mb-2"
-          >
+            className="text-4xl md:text-5xl font-extrabold text-center mb-2">
             <span className="bg-gradient-to-r from-[#ff5528] to-[#ff784e] bg-clip-text text-transparent">
-              {userData.kycStatus !== "approved" ? "KYC Verification" : "Raise Fund"}
+              {userData.kycStatus !== "approved"
+                ? "KYC Verification"
+                : "Raise Fund"}
             </span>
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-gray-400 text-center mb-8"
-          >
-            {userData.kycStatus !== "approved" 
-              ? "Complete your verification to start raising funds" 
+            className="text-gray-400 text-center mb-8">
+            {userData.kycStatus !== "approved"
+              ? "Complete your verification to start raising funds"
               : "Tell us your story and how we can help"}
           </motion.p>
 
           {userData.kycStatus !== "approved" ? (
-            <motion.form 
+            <motion.form
               className="space-y-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
+              transition={{ duration: 0.6, delay: 0.5 }}>
               {/* KYC Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <motion.div 
+                <motion.div
                   className="flex flex-col space-y-2 group"
                   whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <label className="text-sm font-medium text-[#ff784e] mb-1">CNIC Front Image</label>
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                  <label className="text-sm font-medium text-[#ff784e] mb-1">
+                    CNIC Front Image
+                  </label>
                   <div className="relative">
                     <input
                       type="file"
@@ -235,12 +252,13 @@ const RaiseFund = () => {
                   </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                   className="flex flex-col space-y-2 group"
                   whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <label className="text-sm font-medium text-[#ff784e] mb-1">CNIC Back Image</label>
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                  <label className="text-sm font-medium text-[#ff784e] mb-1">
+                    CNIC Back Image
+                  </label>
                   <div className="relative">
                     <input
                       type="file"
@@ -253,12 +271,13 @@ const RaiseFund = () => {
                 </motion.div>
               </div>
 
-              <motion.div 
+              <motion.div
                 className="group"
                 whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <label className="text-sm font-medium text-[#ff784e] mb-1 block">Full Address</label>
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                <label className="text-sm font-medium text-[#ff784e] mb-1 block">
+                  Full Address
+                </label>
                 <div className="relative">
                   <textarea
                     placeholder="Enter your complete address..."
@@ -271,12 +290,13 @@ const RaiseFund = () => {
                 </div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 className="group"
                 whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <label className="text-sm font-medium text-[#ff784e] mb-1 block">Mobile Number</label>
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                <label className="text-sm font-medium text-[#ff784e] mb-1 block">
+                  Mobile Number
+                </label>
                 <div className="relative">
                   <input
                     type="tel"
@@ -289,12 +309,13 @@ const RaiseFund = () => {
                 </div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 className="space-y-4"
                 whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <label className="text-sm font-medium text-[#ff784e] block">Capture Selfie</label>
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                <label className="text-sm font-medium text-[#ff784e] block">
+                  Capture Selfie
+                </label>
                 <div className="relative rounded-xl overflow-hidden border-2 border-[#ff5528]/20 group-hover:border-[#ff5528] transition-all duration-300">
                   <Webcam
                     audio={false}
@@ -312,8 +333,7 @@ const RaiseFund = () => {
                   onClick={captureSelfie}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-[#ff5528] to-[#ff784e] text-black rounded-full font-semibold transform transition-all duration-300 hover:shadow-lg hover:shadow-[#ff5528]/20"
-                >
+                  className="w-full px-6 py-3 bg-gradient-to-r from-[#ff5528] to-[#ff784e] text-black rounded-full font-semibold transform transition-all duration-300 hover:shadow-lg hover:shadow-[#ff5528]/20">
                   Capture Selfie
                 </motion.button>
               </motion.div>
@@ -328,33 +348,46 @@ const RaiseFund = () => {
                   kycLoading
                     ? "bg-[#ff7f50] cursor-not-allowed"
                     : "bg-gradient-to-r from-[#ff5528] to-[#ff784e] hover:shadow-[#ff5528]/20"
-                }`}
-              >
+                }`}>
                 {kycLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     Submitting...
                   </span>
-                ) : "Submit KYC"}
+                ) : (
+                  "Submit KYC"
+                )}
               </motion.button>
             </motion.form>
           ) : (
-            <motion.form 
-              onSubmit={submitFundRaise} 
+            <motion.form
+              onSubmit={submitFundRaise}
               className="space-y-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <motion.div 
+              transition={{ duration: 0.6, delay: 0.5 }}>
+              <motion.div
                 className="group"
                 whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <label className="text-sm font-medium text-[#ff784e] mb-1 block">Amount Needed</label>
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                <label className="text-sm font-medium text-[#ff784e] mb-1 block">
+                  Amount Needed
+                </label>
                 <div className="relative">
                   <input
                     type="number"
@@ -369,12 +402,13 @@ const RaiseFund = () => {
                 </div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 className="group"
                 whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <label className="text-sm font-medium text-[#ff784e] mb-1 block">Your Story</label>
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                <label className="text-sm font-medium text-[#ff784e] mb-1 block">
+                  Your Story
+                </label>
                 <div className="relative">
                   <textarea
                     value={fundDescription}
@@ -397,17 +431,30 @@ const RaiseFund = () => {
                   fundLoading
                     ? "bg-[#ff7f50] cursor-not-allowed"
                     : "bg-gradient-to-r from-[#ff5528] to-[#ff784e] hover:shadow-[#ff5528]/20"
-                }`}
-              >
+                }`}>
                 {fundLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     Submitting...
                   </span>
-                ) : "Raise Fund"}
+                ) : (
+                  "Raise Fund"
+                )}
               </motion.button>
             </motion.form>
           )}
@@ -418,4 +465,3 @@ const RaiseFund = () => {
 };
 
 export default RaiseFund;
-
