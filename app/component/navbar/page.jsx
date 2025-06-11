@@ -32,7 +32,8 @@ export default function Navbar() {
             { name: 'About', path: '/about' },
             { name: 'Donation', path: '/donor/Home' },
             { name: 'FAQs', path: '/faq' },
-            { name: 'Contact', path: '/contact' }
+            { name: 'Contact', path: '/contact' },
+            { name: 'Give', path: '/donor/give' }
           ].map((item, i) => (
             <button
               key={i}
