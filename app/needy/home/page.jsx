@@ -4,19 +4,37 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { app } from "../../utils/firebaseConfig";
+import { app, db } from "../../utils/firebaseConfig";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 
 const NeedyHome = () => {
   const router = useRouter();
   const auth = getAuth(app);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        router.push("/auth/login"); 
+        router.push("/auth/login");
       } else {
-        setCheckingAuth(false); 
+        setCheckingAuth(false);
+
+        const q = query(
+          collection(db, "publicPosts"),
+          where("status", "==", "approved"),
+          orderBy("createdAt", "desc")
+        );
+
+        const unsubscribePosts = onSnapshot(q, (snapshot) => {
+          const data = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setPosts(data);
+        });
+
+        return () => unsubscribePosts();
       }
     });
 
@@ -45,29 +63,30 @@ const NeedyHome = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ 
-              duration: 0.8, 
+            transition={{
+              duration: 0.8,
               ease: "easeOut",
-              delay: 0.2 
+              delay: 0.2,
             }}
           >
             <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-4">
-              <motion.span 
+              <motion.span
                 className="inline-flex items-center gap-2"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
               >
                 Get the Help
-              </motion.span> <br />
-              <motion.span 
+              </motion.span>{" "}
+              <br />
+              <motion.span
                 className="bg-gradient-to-r from-[#ff5528] to-[#ff784e] bg-clip-text text-transparent inline-block"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
               >
                 You Deserve
-                <motion.span 
+                <motion.span
                   className="text-[0.85em] transform -translate-y-[2px]"
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -75,7 +94,7 @@ const NeedyHome = () => {
                     duration: 0.5,
                     delay: 0.8,
                     type: "spring",
-                    stiffness: 200
+                    stiffness: 200,
                   }}
                 >
                   ❤️
@@ -126,13 +145,13 @@ const NeedyHome = () => {
           className="flex-1 w-full"
           initial={{ opacity: 0, scale: 0.9, x: 30 }}
           animate={{ opacity: 1, scale: 1, x: 0 }}
-          transition={{ 
-            duration: 0.8, 
+          transition={{
+            duration: 0.8,
             delay: 0.4,
-            ease: "easeOut"
+            ease: "easeOut",
           }}
         >
-          <motion.div 
+          <motion.div
             className="relative"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 200, damping: 25 }}
@@ -147,8 +166,44 @@ const NeedyHome = () => {
         </motion.div>
       </motion.section>
 
+      {/* Approved Posts Section */}
+      <section className="max-w-5xl mx-auto px-6 py-12">
+        <h2 className="text-2xl font-semibold mb-6 text-white">
+          Approved Fund Requests
+        </h2>
+
+        {posts.length === 0 ? (
+          <p className="text-gray-400">No approved fund requests yet.</p>
+        ) : (
+          <div className="grid gap-6">
+            {posts.map((post) => (
+              <div
+                key={post.id}
+                className="bg-[#111] border border-gray-800 rounded-lg p-6 shadow-md"
+              >
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  {post.description}
+                </h3>
+                <p className="text-gray-300 mb-1">
+                  Amount Requested:{" "}
+                  <span className="text-orange-400 font-semibold">
+                    ${post.amount}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-500">
+                  Posted:{" "}
+                  {new Date(
+                    post.createdAt?.toDate?.() || post.createdAt
+                  ).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Footer */}
-      <motion.footer 
+      <motion.footer
         className="text-center text-gray-400 py-8 text-sm border-t border-gray-800"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
