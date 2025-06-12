@@ -18,12 +18,12 @@ export default function Signup() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [country, setCountry] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [mobile, setMobile] = useState("");
-  const [kycFile, setKycFile] = useState(null);
+  const [country, setCountry] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [error, setError] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
@@ -45,7 +45,18 @@ export default function Signup() {
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
-    setUploading(true);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
+    if (!profileImage) {
+      setError("Please upload a profile image.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -55,77 +66,80 @@ export default function Signup() {
       );
       const user = userCredential.user;
 
-      let kycPhotoURL = "";
-      let profileImageURL = "";
-
-      if (role === "needy" && kycFile) {
-        kycPhotoURL = await uploadToCloudinary(kycFile);
+      let imageUrl = "";
+      if (role === "needy" && profileImage) {
+        imageUrl = await uploadToCloudinary(profileImage);
       }
-
       if (role === "donor" && profileImage) {
-        profileImageURL = await uploadToCloudinary(profileImage);
+        imageUrl = await uploadToCloudinary(profileImage);
       }
 
       const userData = {
         fullName,
         email,
         role,
+        profileImage: imageUrl,
         createdAt: new Date(),
       };
 
       if (role === "needy") {
-        userData.country = country;
         userData.mobile = mobile;
-        userData.kycPhoto = kycPhotoURL;
-      } else if (role === "donor") {
-        userData.profileImage = profileImageURL;
+        userData.country = country;
       }
 
       await setDoc(doc(db, "users", user.uid), userData);
       router.push("/auth/login");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Signup failed. Try again.");
     }
 
-    setUploading(false);
+    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] flex items-center justify-center px-4">
-      <div className="bg-[#1a1a1a] p-8 rounded-2xl shadow-xl w-full max-w-md border border-[#2a2a2a]">
-        <h2 className="text-3xl font-bold text-white mb-6 text-center">
-          Create Account
+    <div className="min-h-screen bg-white flex items-center justify-center px-2">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col items-center">
+          <img
+            src="/logo-donation.png"
+            alt="Lift Humanity"
+            className="w-55 h-55"
+          />
+        </div>
+
+        <h2 className="text-2xl font-bold text-center text-[#ff5528] mb-8">
+          Sign Up
         </h2>
-
+        <div className="flex justify-center gap-4 mb-7">
+          <button
+            type="button"
+            onClick={() => setRole("donor")}
+            className={`w-1/2 py-2 rounded-full text-white font-medium ${
+              role === "donor"
+                ? "bg-[#ff5528]"
+                : "bg-gray-300 text-black hover:bg-[#ff784e]"
+            }`}>
+            Donor
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("needy")}
+            className={`w-1/2 py-2 rounded-full text-white font-medium ${
+              role === "needy"
+                ? "bg-[#ff5528]"
+                : "bg-gray-300 text-black hover:bg-[#ff784e]"
+            }`}>
+            Needy
+          </button>
+        </div>
         <form onSubmit={handleSignup} className="space-y-4">
-          <div className="flex justify-center gap-6 text-white">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="donor"
-                checked={role === "donor"}
-                onChange={() => setRole("donor")}
-              />
-              Donor
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="needy"
-                checked={role === "needy"}
-                onChange={() => setRole("needy")}
-              />
-              Needy
-            </label>
-          </div>
-
           <input
             type="text"
             placeholder="Full Name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
-            className="w-full px-4 py-3 bg-[#2a2a2a] text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:ring-2 focus:ring-[#ff5528] focus:outline-none"
+            className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5528]"
           />
 
           <input
@@ -134,7 +148,7 @@ export default function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 bg-[#2a2a2a] text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:ring-2 focus:ring-[#ff5528] focus:outline-none"
+            className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5528]"
           />
 
           <input
@@ -143,63 +157,64 @@ export default function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 bg-[#2a2a2a] text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:ring-2 focus:ring-[#ff5528] focus:outline-none"
+            className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5528]"
+          />
+
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5528]"
           />
 
           {role === "needy" && (
             <>
               <input
                 type="text"
-                placeholder="Country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                required
-                className="w-full px-4 py-3 bg-[#2a2a2a] text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:ring-2 focus:ring-[#ff5528] focus:outline-none"
-              />
-
-              <input
-                type="text"
                 placeholder="Mobile Number"
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-[#2a2a2a] text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:ring-2 focus:ring-[#ff5528] focus:outline-none"
+                className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5528]"
               />
 
               <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setKycFile(e.target.files[0])}
+                type="text"
+                placeholder="Country"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
                 required
-                className="mt-1 w-full text-sm text-white file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-[#ff5528] file:text-white hover:file:bg-[#ff7f50] file:cursor-pointer file:transition file:duration-300"
+                className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5528]"
               />
             </>
           )}
 
-          {role === "donor" && (
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setProfileImage(e.target.files[0])}
-              className="mt-1 w-full text-sm text-white file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-[#ff5528] file:text-white hover:file:bg-[#ff7f50] file:cursor-pointer file:transition file:duration-300"
-            />
-          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setProfileImage(e.target.files[0])}
+            required
+            className="mt-1 w-full text-sm file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-[#ff5528] file:text-white hover:file:bg-[#ff784e] file:cursor-pointer"
+          />
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <button
             type="submit"
-            disabled={uploading}
-            className="w-full bg-gradient-to-r from-[#ff5528] to-[#ff784e] text-black font-semibold py-3 rounded-full hover:opacity-90 transition-all"
-          >
-            {uploading ? "Creating..." : "Sign Up"}
+            disabled={loading}
+            className="w-full bg-[#ff5528] hover:bg-[#ff784e] text-white font-semibold py-3 rounded-lg transition-all">
+            {loading ? "Creating..." : "Create Account"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-400 mt-4">
+        <p className="text-center text-sm text-[#ff5528] mt-4">
           Already have an account?{" "}
-          <Link href="/auth/login" className="text-[#ff5528] hover:underline">
-            Login here
+          <Link
+            href="/auth/login"
+            className="text-[#ff5528] hover:underline font-medium">
+            Login
           </Link>
         </p>
       </div>
