@@ -21,7 +21,7 @@ export default function Signup() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [mobile, setMobile] = useState("");
   const [country, setCountry] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -51,7 +51,7 @@ export default function Signup() {
       return;
     }
 
-    if (!profileImage) {
+    if (!profileImageUrl) {
       setError("Please upload a profile image.");
       return;
     }
@@ -67,18 +67,18 @@ export default function Signup() {
       const user = userCredential.user;
 
       let imageUrl = "";
-      if (role === "needy" && profileImage) {
-        imageUrl = await uploadToCloudinary(profileImage);
+      if (role === "needy" && profileImageUrl) {
+        imageUrl = await uploadToCloudinary(Url);
       }
-      if (role === "donor" && profileImage) {
-        imageUrl = await uploadToCloudinary(profileImage);
+      if (role === "donor" && profileImageUrl) {
+        imageUrl = await uploadToCloudinary(profileImageUrl);
       }
 
       const userData = {
         fullName,
         email,
         role,
-        profileImage: imageUrl,
+        profileImageUrl: imageUrl,
         createdAt: new Date(),
       };
 
@@ -194,7 +194,7 @@ export default function Signup() {
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => setProfileImage(e.target.files[0])}
+            onChange={(e) => setProfileImageUrl(e.target.files[0])}
             required
             className="mt-1 w-full text-sm file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-[#ff5528] file:text-white hover:file:bg-[#ff784e] file:cursor-pointer"
           />

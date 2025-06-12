@@ -6,6 +6,8 @@ import {  useState } from 'react';
 // import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Navbar from "@/app/component/navbar/page";
+import Footer from '../../component/footer/page';
 
 const GivePage = () => {
     const router = useRouter();
@@ -98,58 +100,62 @@ const GivePage = () => {
     // }, []);
 
     return (
-        <div className="px-6 py-10 bg-[#fafbfc] min-h-screen">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                {blogs.map((blog) => {
-                    const day = blog.createdAt.getDate().toString().padStart(2, '0');
-                    const month = blog.createdAt.toLocaleString('default', { month: 'short' }).toUpperCase();
-                    return (
-                        <div
-                            key={blog.id}
-                            className="bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden flex flex-col transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl group"
-                        >
-                            <div className="relative">
-                                {blog.userImg && (
-                                    <img
-                                        src={blog.userImg}
-                                        className="w-full h-52 object-cover"
-                                        alt="profile"
-                                    />
-                                )}
-                                {/* Date badge bottom left */}
-                                <div className="absolute left-4 bottom-4 bg-orange-500 text-white rounded px-3 py-1 flex flex-col items-center shadow-md">
-                                    <span className="text-base font-bold leading-none">{day}</span>
-                                    <span className="text-xs font-semibold leading-none">{month}</span>
+        <div className="min-h-screen bg-[#fafbfc]">
+            <Navbar/>
+            <div className="px-6 py-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                    {blogs.map((blog) => {
+                        const day = blog.createdAt.getDate().toString().padStart(2, '0');
+                        const month = blog.createdAt.toLocaleString('default', { month: 'short' }).toUpperCase();
+                        return (
+                            <div
+                                key={blog.id}
+                                className="bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden flex flex-col transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl group"
+                            >
+                                <div className="relative">
+                                    {blog.userImg && (
+                                        <img
+                                            src={blog.userImg}
+                                            className="w-full h-52 object-cover"
+                                            alt="profile"
+                                        />
+                                    )}
+                                    {/* Date badge bottom left */}
+                                    <div className="absolute left-4 bottom-4 bg-orange-500 text-white rounded px-3 py-1 flex flex-col items-center shadow-md">
+                                        <span className="text-base font-bold leading-none">{day}</span>
+                                        <span className="text-xs font-semibold leading-none">{month}</span>
+                                    </div>
+                                </div>
+                                <div className="flex-1 flex flex-col p-6">
+                                    <Link href={`/donor/give/${blog.id}`}>
+                                        <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-orange-500 transition-colors cursor-pointer min-h-[56px]">
+                                            {blog.title}
+                                        </h3>
+                                    </Link>
+                                    <p className="text-gray-600 text-sm mb-4 flex-1 min-h-[48px]">
+                                        {blog.description.slice(0, 80)}...
+                                    </p>
+                                    <div className="mb-4 text-xs text-gray-500 flex flex-col gap-1">
+                                        <span><span className="font-semibold">By:</span> {blog.userName}</span>
+                                        <span><span className="font-semibold">Raised:</span> ${blog.amountRaised} / ${blog.amountRequested}</span>
+                                    </div>
+                                    <Link href={`/donor/give/${blog.id}`} className="mt-auto">
+                                        <button className="w-full flex items-center justify-center gap-2 bg-white border-2 border-orange-500 text-orange-500 font-semibold py-2 rounded-full transition hover:bg-orange-500 hover:text-white hover:shadow-md">
+                                            Read More
+                                            <span className="inline-block bg-orange-500 text-white rounded-full p-1 ml-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L21 12m0 0l-3.75 5.25M21 12H3" />
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </Link>
                                 </div>
                             </div>
-                            <div className="flex-1 flex flex-col p-6">
-                                <Link href={`/donor/give/${blog.id}`}>
-                                    <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-orange-500 transition-colors cursor-pointer min-h-[56px]">
-                                        {blog.title}
-                                    </h3>
-                                </Link>
-                                <p className="text-gray-600 text-sm mb-4 flex-1 min-h-[48px]">
-                                    {blog.description.slice(0, 80)}...
-                                </p>
-                                <div className="mb-4 text-xs text-gray-500 flex flex-col gap-1">
-                                    <span><span className="font-semibold">By:</span> {blog.userName}</span>
-                                    <span><span className="font-semibold">Raised:</span> ${blog.amountRaised} / ${blog.amountRequested}</span>
-                                </div>
-                                <Link href={`/donor/give/${blog.id}`} className="mt-auto">
-                                    <button className="w-full flex items-center justify-center gap-2 bg-white border-2 border-orange-500 text-orange-500 font-semibold py-2 rounded-full transition hover:bg-orange-500 hover:text-white hover:shadow-md">
-                                        Read More
-                                        <span className="inline-block bg-orange-500 text-white rounded-full p-1 ml-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L21 12m0 0l-3.75 5.25M21 12H3" />
-                                            </svg>
-                                        </span>
-                                    </button>
-                                </Link>
-                            </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
+            <Footer/>
         </div>
     );
 };

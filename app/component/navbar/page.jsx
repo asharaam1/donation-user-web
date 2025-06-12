@@ -92,7 +92,7 @@ export default function Navbar() {
       className="flex items-center gap-3 bg-white px-4 py-2 border border-gray-200 rounded-full shadow-md hover:shadow-lg transition cursor-pointer"
     >
       <Image
-        src={userData.profileImage || "/default-avatar.png"}
+        src={userData.profileImageUrl || "/default-avatar.png"}
         alt="User Avatar"
         width={44}
         height={44}
