@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, onSnapshot } from "firebase/firestore";
@@ -41,22 +42,22 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#000000] text-white">
+      <div className="flex items-center justify-center min-h-screen bg-white text-black">
         <p className="text-xl font-semibold animate-pulse">Loading profile...</p>
       </div>
     );
   }
 
-  if (!userData) {
+  if (!userData || userData.role !== "needy") {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#000000] text-white px-4 text-center">
-        <p className="text-lg font-semibold">User data not found. Please login again.</p>
+      <div className="flex items-center justify-center min-h-screen bg-white text-black px-4 text-center">
+        <p className="text-lg font-semibold">User data not found or unauthorized.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-black via-[#141414] to-black text-white py-16 px-4">
+    <div className="min-h-screen bg-white text-black py-16 px-4">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -67,89 +68,64 @@ const Profile = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-5xl font-extrabold mb-12 text-center"
+          className="text-4xl md:text-5xl font-extrabold mb-12 text-center"
         >
-          <span className="bg-gradient-to-r from-[#ff5528] to-[#ff7f50] bg-clip-text text-transparent">
-            Profile Overview
-          </span>
+          <span className="text-orange-500">Needy Profile</span>
         </motion.h1>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="rounded-3xl p-8 md:p-12 shadow-2xl bg-gradient-to-br from-[#1c1c1c] to-[#000000] border border-[#2a2a2a] backdrop-blur-lg"
+          className="rounded-3xl p-6 md:p-10 shadow-lg bg-white border border-gray-200"
         >
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <div className="group">
-                <label className="text-sm font-medium text-[#ff7f50] mb-1 block">Full Name</label>
-                <p className="text-xl font-semibold group-hover:text-[#ff5528] transition-colors">
-                  {userData.fullName || "N/A"}
-                </p>
+              <div>
+                <label className="text-sm font-medium text-gray-600 mb-1 block">Full Name</label>
+                <p className="text-lg font-semibold">{userData.fullName || "N/A"}</p>
               </div>
-              
-              <div className="group">
-                <label className="text-sm font-medium text-[#ff7f50] mb-1 block">Email</label>
-                <p className="text-xl font-semibold group-hover:text-[#ff5528] transition-colors">
-                  {userData.email || "N/A"}
-                </p>
+              <div>
+                <label className="text-sm font-medium text-gray-600 mb-1 block">Email</label>
+                <p className="text-lg font-semibold">{userData.email || "N/A"}</p>
               </div>
-
-              {userData.role === "needy" && (
-                <>
-                  <div className="group">
-                    <label className="text-sm font-medium text-[#ff7f50] mb-1 block">Country</label>
-                    <p className="text-xl font-semibold group-hover:text-[#ff5528] transition-colors">
-                      {userData.country || "N/A"}
-                    </p>
-                  </div>
-                  
-                  <div className="group">
-                    <label className="text-sm font-medium text-[#ff7f50] mb-1 block">Mobile</label>
-                    <p className="text-xl font-semibold group-hover:text-[#ff5528] transition-colors">
-                      {userData.mobile || "N/A"}
-                    </p>
-                  </div>
-                </>
-              )}
+              <div>
+                <label className="text-sm font-medium text-gray-600 mb-1 block">Country</label>
+                <p className="text-lg font-semibold">{userData.country || "N/A"}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600 mb-1 block">Mobile</label>
+                <p className="text-lg font-semibold">{userData.mobile || "N/A"}</p>
+              </div>
             </div>
 
-            {userData.role === "needy" && userData.kycPhoto && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="relative group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#ff5528]/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div>
-                  <label className="text-sm font-medium text-[#ff7f50] mb-3 block">Verification Image</label>
+            <div className="flex justify-center items-start">
+              <div className="text-center">
+                {userData.profileImage && (
                   <img
-                    src={userData.kycPhoto}
-                    alt="KYC Document"
-                    className="rounded-2xl border-2 border-[#ff5528] shadow-2xl w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    src={userData.profileImage}
+                    alt="Profile"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-orange-500 mx-auto"
                   />
-                </div>
-              </motion.div>
-            )}
-
-            {userData.role === "donor" && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="md:col-span-2 mt-4 p-6 rounded-2xl bg-gradient-to-r from-[#1f1f1f] to-[#0f0f0f] border border-[#2a2a2a]"
-              >
-                <div className="flex items-center space-x-4">
-                  <span className="text-4xl">👋</span>
-                  <p className="text-xl font-medium text-[#ff5528]">
-                    Welcome, donor! You can donate and track your impact here.
-                  </p>
-                </div>
-              </motion.div>
-            )}
+                )}
+              </div>
+            </div>
           </div>
+
+          {userData.kycPhoto && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="mt-8"
+            >
+              <img
+                src={userData.kycPhoto}
+                alt="KYC Document"
+                className="rounded-xl border border-gray-300 w-full max-w-md object-cover mx-auto"
+              />
+            </motion.div>
+          )}
         </motion.div>
       </motion.div>
     </div>
