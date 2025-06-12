@@ -101,14 +101,14 @@ const RaiseFund = () => {
     setKycLoading(true);
     try {
       const user = auth.currentUser;
-      
+
       // Check if user already has a KYC request
       const kycQuery = query(
         collection(db, "kycRequests"),
         where("userId", "==", user.uid)
       );
       const kycSnapshot = await getDocs(kycQuery);
-      
+
       if (!kycSnapshot.empty) {
         alert("You have already submitted KYC. Please wait for approval.");
         setKycLoading(false);
@@ -121,23 +121,25 @@ const RaiseFund = () => {
         uploadToCloudinary(selfie, "kyc"),
       ]);
       // const user = auth.currentUser;
+
+      await updateDoc(doc(db, "kycRequests", kycDocId), {
+        status: "approved", // or "rejected"
+        reviewedby: adminUid,
+      });
       await addDoc(collection(db, "kycRequests"), {
         userId: user.uid,
-        name: name || "",
-        email: email || "",
         cnicFrontUrl: frontUrl,
         cnicBackUrl: backUrl,
         selfieUrl: selfieUrl,
         address: address.trim(),
         mobile: mobile.trim(),
         status: "pending",
-        createdAt: new Date(),
+        submittedAt: new Date(),
+        reviewedby: null,
       });
-      // const userDocRef = doc(db, "users", user.uid);
-      // await updateDoc(userDocRef, { kycStatus: "pending" });
+
       alert("KYC submitted successfully. Please wait for approval.");
-      // const userDoc = await getDoc(userDocRef);
-      // if (userDoc.exists()) setUserData(userDoc.data());
+
       setCnicFront(null);
       setCnicBack(null);
       setAddress("");
@@ -187,27 +189,6 @@ const RaiseFund = () => {
     setFundLoading(false);
   };
 
-  // const handleRaiseFund = async () => {
-  //   if (!userData || userData.kycStatus !== "approved") {
-  //     const user = auth.currentUser;
-  //     // Check if user already has a pending KYC request
-  //     const kycQuery = query(
-  //       collection(db, "kycRequests"),
-  //       where("userId", "==", user.uid),
-  //       where("status", "==", "pending")
-  //     );
-  //     const kycSnapshot = await getDocs(kycQuery);
-      
-  //     if (!kycSnapshot.empty) {
-  //       alert("Your KYC request is already pending. Please wait for approval.");
-  //       return;
-  //     }
-  //     setShowKycForm(true);
-  //     return;
-  //   }
-  //   setShowFundForm(true);
-  // };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black text-white">
@@ -231,12 +212,12 @@ const RaiseFund = () => {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="min-h-screen bg-gradient-to-br from-[#0f0f0f] to-[#1e1e1e] text-white p-6 md:p-10">
+      className="min-h-screen bg-white text-black p-6 md:p-10">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="max-w-3xl mx-auto bg-[#121212] p-8 md:p-10 rounded-2xl shadow-2xl space-y-8 relative overflow-hidden">
+        className="max-w-3xl mx-auto bg-white p-8 md:p-10 rounded-2xl shadow-2xl space-y-8 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528] to-[#ff784e] transform rotate-12 scale-150"></div>
@@ -248,7 +229,7 @@ const RaiseFund = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-4xl md:text-5xl font-extrabold text-center mb-2">
+            className="text-4xl md:text-5xl font-extrabold text-center mb-2 text-orange-600">
             <span className="bg-gradient-to-r from-[#ff5528] to-[#ff784e] bg-clip-text text-transparent">
               {userData.kycStatus !== "approved"
                 ? "KYC Verification"
@@ -259,7 +240,7 @@ const RaiseFund = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-gray-400 text-center mb-8">
+            className="text-gray-700 text-center mb-8">
             {userData.kycStatus !== "approved"
               ? "Complete your verification to start raising funds"
               : "Tell us your story and how we can help"}
@@ -277,7 +258,7 @@ const RaiseFund = () => {
                   className="flex flex-col space-y-2 group"
                   whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                  <label className="text-sm font-medium text-[#ff784e] mb-1">
+                  <label className="text-sm font-medium  text-orange-600 mb-1">
                     CNIC Front Image
                   </label>
                   <div className="relative">
@@ -285,7 +266,7 @@ const RaiseFund = () => {
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleImageUpload(e, setCnicFront)}
-                      className="file-input bg-[#1f1f1f] border-2 border-[#ff5528]/20 group-hover:border-[#ff5528] rounded-xl p-3 w-full transition-all duration-300 focus:outline-none focus:border-[#ff5528]"
+                      className="file-input bg-white border-2 border-gray-300 group-hover:border-[#ff5528] rounded-xl p-3 w-full transition-all duration-300 focus:outline-none focus:border-orange-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528]/5 to-[#ff784e]/5 rounded-xl pointer-events-none"></div>
                   </div>
@@ -295,7 +276,7 @@ const RaiseFund = () => {
                   className="flex flex-col space-y-2 group"
                   whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                  <label className="text-sm font-medium text-[#ff784e] mb-1">
+                  <label className="text-sm font-medium  text-orange-600 mb-1">
                     CNIC Back Image
                   </label>
                   <div className="relative">
@@ -303,7 +284,7 @@ const RaiseFund = () => {
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleImageUpload(e, setCnicBack)}
-                      className="file-input bg-[#1f1f1f] border-2 border-[#ff5528]/20 group-hover:border-[#ff5528] rounded-xl p-3 w-full transition-all duration-300 focus:outline-none focus:border-[#ff5528]"
+                      className="file-input bg-white border-2 border-gray-300 group-hover:border-[#ff5528] rounded-xl p-3 w-full transition-all duration-300 focus:outline-none focus:border-orange-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528]/5 to-[#ff784e]/5 rounded-xl pointer-events-none"></div>
                   </div>
@@ -314,7 +295,7 @@ const RaiseFund = () => {
                 className="group"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                <label className="text-sm font-medium text-[#ff784e] mb-1 block">
+                <label className="text-sm font-medium  text-orange-600 mb-1 block">
                   Full Address
                 </label>
                 <div className="relative">
@@ -322,7 +303,7 @@ const RaiseFund = () => {
                     placeholder="Enter your complete address..."
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full bg-[#1f1f1f] p-4 rounded-xl border-2 border-[#ff5528]/20 group-hover:border-[#ff5528] resize-none transition-all duration-300 focus:outline-none focus:border-[#ff5528]"
+                    className="w-full bg-white p-4 rounded-xl border-2 border-gray-300 group-hover:border-[#ff5528] resize-none transition-all duration-300 focus:outline-none focus:border-orange-500"
                     rows={3}
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528]/5 to-[#ff784e]/5 rounded-xl pointer-events-none"></div>
@@ -333,7 +314,7 @@ const RaiseFund = () => {
                 className="group"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                <label className="text-sm font-medium text-[#ff784e] mb-1 block">
+                <label className="text-sm font-medium  text-orange-600 mb-1 block">
                   Mobile Number
                 </label>
                 <div className="relative">
@@ -342,7 +323,7 @@ const RaiseFund = () => {
                     placeholder="03XXXXXXXXX"
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
-                    className="w-full bg-[#1f1f1f] p-4 rounded-xl border-2 border-[#ff5528]/20 group-hover:border-[#ff5528] transition-all duration-300 focus:outline-none focus:border-[#ff5528]"
+                    className="w-full bg-white p-4 rounded-xl border-2 border-gray-300 group-hover:border-[#ff5528] transition-all duration-300 focus:outline-none focus:border-orange-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528]/5 to-[#ff784e]/5 rounded-xl pointer-events-none"></div>
                 </div>
@@ -352,10 +333,10 @@ const RaiseFund = () => {
                 className="space-y-4"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                <label className="text-sm font-medium text-[#ff784e] block">
+                <label className="text-sm font-medium  text-orange-600 block">
                   Capture Selfie
                 </label>
-                <div className="relative rounded-xl overflow-hidden border-2 border-[#ff5528]/20 group-hover:border-[#ff5528] transition-all duration-300">
+                <div className="relative rounded-xl overflow-hidden border-2 border-gray-300 group-hover:border-[#ff5528] transition-all duration-300">
                   <Webcam
                     audio={false}
                     height={240}
@@ -372,7 +353,7 @@ const RaiseFund = () => {
                   onClick={captureSelfie}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-[#ff5528] to-[#ff784e] text-black rounded-full font-semibold transform transition-all duration-300 hover:shadow-lg hover:shadow-[#ff5528]/20">
+                  className="w-full px-6 py-3 bg-orange-500 text-white rounded-full font-semibold transform transition-all duration-300 hover:bg-orange-600 hover:shadow-lg">
                   Capture Selfie
                 </motion.button>
               </motion.div>
@@ -383,7 +364,7 @@ const RaiseFund = () => {
                 disabled={kycLoading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`w-full py-4 rounded-full font-bold text-black shadow-lg transition-all duration-300 ${
+                className={`w-full py-4 rounded-full font-bold text-white bg-orange-500 transition-all duration-300 hover:bg-orange-600 hover:shadow-md disabled:cursor-not-allowed ${
                   kycLoading
                     ? "bg-[#ff7f50] cursor-not-allowed"
                     : "bg-gradient-to-r from-[#ff5528] to-[#ff784e] hover:shadow-[#ff5528]/20"
@@ -424,7 +405,7 @@ const RaiseFund = () => {
                 className="group"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                <label className="text-sm font-medium text-[#ff784e] mb-1 block">
+                <label className="text-sm font-medium  text-orange-600 mb-1 block">
                   Amount Needed
                 </label>
                 <div className="relative">
@@ -433,7 +414,7 @@ const RaiseFund = () => {
                     value={fundAmount}
                     onChange={(e) => setFundAmount(e.target.value)}
                     placeholder="Enter amount in USD..."
-                    className="w-full bg-[#1f1f1f] p-4 rounded-xl border-2 border-[#ff5528]/20 group-hover:border-[#ff5528] transition-all duration-300 focus:outline-none focus:border-[#ff5528]"
+                    className="w-full bg-white p-4 rounded-xl border-2 border-gray-300 group-hover:border-[#ff5528] transition-all duration-300 focus:outline-none focus:border-orange-500"
                     min="1"
                     required
                   />
@@ -445,7 +426,7 @@ const RaiseFund = () => {
                 className="group"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-                <label className="text-sm font-medium text-[#ff784e] mb-1 block">
+                <label className="text-sm font-medium  text-orange-600 mb-1 block">
                   Your Story
                 </label>
                 <div className="relative">
@@ -454,7 +435,7 @@ const RaiseFund = () => {
                     onChange={(e) => setFundDescription(e.target.value)}
                     placeholder="Tell us why you need help..."
                     rows={4}
-                    className="w-full bg-[#1f1f1f] p-4 rounded-xl border-2 border-[#ff5528]/20 group-hover:border-[#ff5528] resize-none transition-all duration-300 focus:outline-none focus:border-[#ff5528]"
+                    className="w-full bg-white p-4 rounded-xl border-2 border-gray-300 group-hover:border-[#ff5528] resize-none transition-all duration-300 focus:outline-none focus:border-orange-500"
                     required
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528]/5 to-[#ff784e]/5 rounded-xl pointer-events-none"></div>
