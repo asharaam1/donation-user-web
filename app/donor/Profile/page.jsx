@@ -30,70 +30,81 @@ const DonorProfile = () => {
   //   ];
 
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const unsubscribeUser = onSnapshot(
+          userDocRef,
+          (docSnap) => {
+            if (docSnap.exists()) {
+              setUserData(docSnap.data());
+            } else {
+              setUserData(null);
+            }
+            setLoading(false);
+          },
+          (error) => {
+            console.error("Error fetching user data: ", error);
+            setLoading(false);
+          }
+        );
 
-    const userDocRef = doc(db, "users", user.uid);
-    const unsubscribeUser = onSnapshot(
-      userDocRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
-        } else {
-          setUserData(null);
-        }
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error fetching user data: ", error);
+        const fetchContributions = async () => {
+          const donationsRef = collection(db, "donations");
+          const q = query(donationsRef, where("donorId", "==", user.uid));
+
+          const unsubscribeDonations = onSnapshot(q, async (snapshot) => {
+            let totalAmount = 0;
+            const supportedCauses = new Set();
+            const fetchedContributions = [];
+
+            for (const donationDoc of snapshot.docs) {
+              const donationData = donationDoc.data();
+              totalAmount += donationData.amount;
+              supportedCauses.add(donationData.fundRequestId);
+
+              const fundRequestDocRef = doc(db, "fundRequests", donationData.fundRequestId);
+              const fundRequestSnap = await getDoc(fundRequestDocRef);
+
+              if (fundRequestSnap.exists()) {
+                const fundRequestData = fundRequestSnap.data();
+                fetchedContributions.push({
+                  cause: fundRequestData.title,
+                  amount: donationData.amount.toLocaleString(),
+                  date: new Date(donationData.donatedAt.toDate()).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                  category: fundRequestData.category || "N/A",
+                });
+              }
+            }
+            setTotalDonated(totalAmount);
+            setCausesSupported(supportedCauses.size);
+            setContributions(fetchedContributions);
+          }, (error) => {
+            console.error("Error fetching donations: ", error);
+          });
+
+          return unsubscribeDonations;
+        };
+
+        const unsubscribeDonations = await fetchContributions();
+
+        return () => {
+          unsubscribeUser();
+          if (unsubscribeDonations) {
+            unsubscribeDonations();
+          }
+        };
+      } else {
+        // User is logged out or not authenticated
+        setUserData(null);
+        setContributions([]);
+        setTotalDonated(0);
+        setCausesSupported(0);
         setLoading(false);
       }
-    );
+    });
 
-    const fetchContributions = async () => {
-      const donationsRef = collection(db, "donations");
-      const q = query(donationsRef, where("donorId", "==", user.uid));
-
-      const unsubscribeDonations = onSnapshot(q, async (snapshot) => {
-        let totalAmount = 0;
-        const supportedCauses = new Set();
-        const fetchedContributions = [];
-
-        for (const donationDoc of snapshot.docs) {
-          const donationData = donationDoc.data();
-          totalAmount += donationData.amount;
-          supportedCauses.add(donationData.fundRequestId);
-
-          const fundRequestDocRef = doc(db, "fundRequests", donationData.fundRequestId);
-          const fundRequestSnap = await getDoc(fundRequestDocRef);
-
-          if (fundRequestSnap.exists()) {
-            const fundRequestData = fundRequestSnap.data();
-            fetchedContributions.push({
-              cause: fundRequestData.title,
-              amount: donationData.amount.toLocaleString(),
-              date: new Date(donationData.donatedAt.toDate()).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-              category: fundRequestData.category || "N/A", // Assuming category exists in fundRequests or default
-            });
-          }
-        }
-        setTotalDonated(totalAmount);
-        setCausesSupported(supportedCauses.size);
-        setContributions(fetchedContributions);
-      }, (error) => {
-        console.error("Error fetching donations: ", error);
-      });
-
-      return () => {
-        unsubscribeUser();
-        unsubscribeDonations();
-      };
-    };
-
-    fetchContributions();
+    return () => unsubscribeAuth();
   }, [auth, db]);
 
   if (loading) {

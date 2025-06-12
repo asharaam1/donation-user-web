@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from "@/app/component/navbar/page";
 import Footer from '../../component/footer/page';
-import { collection, query, getDocs, doc, getDoc, where, orderBy } from "firebase/firestore";
+import { collection, query, getDocs, doc, getDoc, where, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from '../../utils/firebaseConfig';
+import { auth } from '../../utils/firebaseConfig';
 
 const GivePage = () => {
     const router = useRouter();
@@ -16,39 +17,101 @@ const GivePage = () => {
  
 
     useEffect(() => {
-        const fetchFundRequests = async () => {
+        const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                router.push("/auth/login");
+                return;
+            }
+
             try {
-                const fundRequestsRef = collection(db, 'fundRequests');
-                // Query for approved fund requests, ordered by creation date
-                const q = query(fundRequestsRef, where("status", "==", "approved"), orderBy("createdAt", "desc"));
-                const fundSnapshot = await getDocs(q);
-
-                const fundData = await Promise.all(
-                    fundSnapshot.docs.map(async (docSnap) => {
-                        const fund = docSnap.data();
-                        // Fetch user data for needy person
-                        const userRef = doc(db, 'users', fund.userId);
-                        const userSnap = await getDoc(userRef);
-                        const user = userSnap.data();
-
-                        return {
-                            id: docSnap.id,
-                            ...fund,
-                            userName: user?.fullName || 'Unknown',
-                            userImg: fund.blogImg || user?.profileImageUrl || '/default-avatar.png',
-                        };
-                    })
+                const fundRequestsQuery = query(
+                    collection(db, "fundRequests"),
+                    where("status", "==", "approved"),
+                    orderBy("createdAt", "desc")
                 );
-                setBlogs(fundData);
-                setLoading(false);
+
+                const unsubscribePosts = onSnapshot(fundRequestsQuery, async (snapshot) => {
+                    try {
+                        const fetchedBlogs = await Promise.all(
+                            snapshot.docs.map(async (docSnap) => {
+                                const fund = docSnap.data();
+                                const userRef = doc(db, 'users', fund.userId);
+                                const userSnap = await getDoc(userRef);
+                                const user = userSnap.data();
+                                
+                                return {
+                                    id: docSnap.id,
+                                    title: fund.title,
+                                    description: fund.description,
+                                    amountRequested: fund.amountRequested,
+                                    amountRaised: fund.amountRaised || 0,
+                                    userImg: fund.blogImg || user?.profileImageUrl || '/default-fund-img.png',
+                                    userName: user?.fullName || 'Unknown',
+                                    createdAt: fund.createdAt?.toDate ? fund.createdAt.toDate() : fund.createdAt,
+                                };
+                            })
+                        );
+                        setBlogs(fetchedBlogs);
+                        setLoading(false);
+                    } catch (error) {
+                        console.error("Error processing fund requests:", error);
+                        setLoading(false);
+                    }
+                }, (error) => {
+                    if (error.code === 'failed-precondition') {
+                        console.error("Index not ready. Using fallback query:", error.message);
+                        // Fallback to a simpler query without ordering
+                        const simpleQuery = query(
+                            collection(db, "fundRequests"),
+                            where("status", "==", "approved")
+                        );
+                        
+                        const unsubscribeSimple = onSnapshot(simpleQuery, async (snapshot) => {
+                            try {
+                                const fetchedBlogs = await Promise.all(
+                                    snapshot.docs.map(async (docSnap) => {
+                                        const fund = docSnap.data();
+                                        const userRef = doc(db, 'users', fund.userId);
+                                        const userSnap = await getDoc(userRef);
+                                        const user = userSnap.data();
+                                        
+                                        return {
+                                            id: docSnap.id,
+                                            title: fund.title,
+                                            description: fund.description,
+                                            amountRequested: fund.amountRequested,
+                                            amountRaised: fund.amountRaised || 0,
+                                            userImg: fund.blogImg || user?.profileImageUrl || '/default-fund-img.png',
+                                            userName: user?.fullName || 'Unknown',
+                                            createdAt: fund.createdAt?.toDate ? fund.createdAt.toDate() : fund.createdAt,
+                                        };
+                                    })
+                                );
+                                // Sort the blogs client-side
+                                fetchedBlogs.sort((a, b) => b.createdAt - a.createdAt);
+                                setBlogs(fetchedBlogs);
+                                setLoading(false);
+                            } catch (error) {
+                                console.error("Error processing fund requests (fallback):", error);
+                                setLoading(false);
+                            }
+                        });
+                        return () => unsubscribeSimple();
+                    } else {
+                        console.error("Error fetching approved fund requests:", error);
+                        setLoading(false);
+                    }
+                });
+
+                return () => unsubscribePosts();
             } catch (error) {
-                console.error("Error fetching fund requests: ", error);
+                console.error("Error setting up fund requests query:", error);
                 setLoading(false);
             }
-        };
+        });
 
-        fetchFundRequests();
-    }, [db]);
+        return () => unsubscribeAuth();
+    }, [router]);
 
     return (
         <div className="min-h-screen bg-[#f7f7f7]">
@@ -58,7 +121,7 @@ const GivePage = () => {
                 className="w-full h-80 bg-cover bg-center flex items-center justify-center text-white relative"
                 style={{
                     backgroundImage: "url('/bg-img.png')",
-                    backgroundAttachment: "fixed", // Optional: for parallax effect
+                    backgroundAttachment: "fixed",
                 }}
             >
                 <div className="absolute inset-0 bg-black opacity-5"></div>
@@ -106,11 +169,19 @@ const GivePage = () => {
                                             </h3>
                                         </Link>
                                         <p className="text-gray-600 text-sm mb-4 flex-1 min-h-[48px]">
-                                            {blog.description.slice(0, 80)}...
+                                            {blog.description?.slice(0, 80)}...
                                         </p>
                                         <div className="mb-4 text-xs text-gray-500 flex flex-col gap-1">
                                             <span><span className="font-semibold">By:</span> {blog.userName}</span>
-                                            <span><span className="font-semibold">Raised:</span> Rs {blog.amountRaised.toLocaleString()} / Rs {blog.amountRequested.toLocaleString()}</span>
+                                            <span><span className="font-semibold">Raised:</span> Rs {(blog.amountRaised || 0).toLocaleString()} / Rs {(blog.amountRequested || 0).toLocaleString()}</span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                                            <div
+                                                className="bg-orange-500 h-2.5 rounded-full"
+                                                style={{
+                                                    width: `${((blog.amountRaised || 0) / (blog.amountRequested || 1)) * 100 || 0}%`,
+                                                }}
+                                            ></div>
                                         </div>
                                         <Link href={`/donor/give/${blog.id}`} className="mt-auto">
                                             <button className="flex items-center gap-2 px-4 py-2 border-2 border-orange-500 text-orange-500 font-semibold rounded-full transition hover:bg-orange-500 hover:text-white hover:shadow-md w-fit mx-auto">

@@ -1,11 +1,10 @@
-
-
-
 'use client';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Navbar from '@/app/component/navbar/page';
+import Footer from '../component/footer/page';
 
 const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -26,7 +25,7 @@ const FAQ = () => {
     { question: "What fees does the platform charge?", answer: "We charge a small service fee to maintain the platform, shown clearly before donating.", category: "Fees" },
     { question: "Can I cancel or refund my donation?", answer: "Donations are usually non-refundable, but special cases can be reviewed upon request.", category: "Donations" },
     { question: "How can I contact support?", answer: "You can reach us via the Contact page or email us at support@example.com.", category: "Support" },
-    { question: "Are donations tax deductible?", answer: "This depends on your country’s tax laws and the campaign's nature—please consult your tax advisor.", category: "Legal" },
+    { question: "Are donations tax deductible?", answer: "This depends on your country's tax laws and the campaign's nature—please consult your tax advisor.", category: "Legal" },
     { question: "How does this platform ensure transparency and accountability?", answer: "We provide real-time campaign updates, verified organizer profiles, and clear breakdowns of how funds are used.", category: "Transparency" },
     { question: "Can organizations or NGOs use this platform for fundraising?", answer: "Yes, verified non-profits and NGOs can create official campaigns with enhanced tools and support.", category: "NGOs" },
     { question: "Is there any compliance with legal or tax regulations?", answer: "We follow all local and international donation laws, and campaigns are regularly reviewed for legal compliance.", category: "Legal" },
@@ -46,6 +45,7 @@ const FAQ = () => {
 
   return (
     <>
+      <Navbar />
       <motion.img 
         src="/faq.GIF" 
         alt="About Us"
@@ -161,6 +161,7 @@ const FAQ = () => {
         </div>
         <ToastContainer position="bottom-right" />
       </div>
+      <Footer />
     </>
   );
 };

@@ -2,6 +2,8 @@
 import dynamic from 'next/dynamic';
 import React from 'react'
 import { motion } from "framer-motion";
+import Navbar from '@/app/component/navbar/page'
+import Footer from '../component/footer/page'
 
 const MotionDiv = dynamic(() =>
   import("framer-motion").then(mod => mod.motion.div),
@@ -48,9 +50,10 @@ const about = () => {
 
   return (
     <>
+      <Navbar />
       <div className='h-full'>
         <motion.img 
-          src="/faq.GIF" 
+          src="/about-image.GIF" 
           alt="About Us"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -421,6 +424,7 @@ const about = () => {
           </motion.div>
         </motion.section>
       </div>
+      <Footer />
     </>
   )
 }

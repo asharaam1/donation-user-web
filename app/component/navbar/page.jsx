@@ -42,7 +42,6 @@ export default function Navbar() {
   const navLinksDonor = [
     { name: "Home", path: "/donor/Home" },
     { name: "About", path: "/about" },
-    { name: "Donation", path: "/donor/Home" },
     { name: "FAQs", path: "/faq" },
     { name: "Contact", path: "/contact" },
     { name: "Give", path: "/donor/give" },

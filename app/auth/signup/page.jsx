@@ -68,7 +68,7 @@ export default function Signup() {
 
       let imageUrl = "";
       if (role === "needy" && profileImageUrl) {
-        imageUrl = await uploadToCloudinary(Url);
+        imageUrl = await uploadToCloudinary(profileImageUrl);
       }
       if (role === "donor" && profileImageUrl) {
         imageUrl = await uploadToCloudinary(profileImageUrl);
@@ -79,6 +79,7 @@ export default function Signup() {
         email,
         role,
         profileImageUrl: imageUrl,
+        uid: user.uid,
         createdAt: new Date(),
       };
 

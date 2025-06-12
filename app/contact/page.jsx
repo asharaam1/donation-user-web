@@ -1,10 +1,10 @@
-
-
 'use client'
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import Navbar from '@/app/component/navbar/page'
+import Footer from '../component/footer/page'
 
 // Animation configurations moved to separate object for better organization
 const animations = {
@@ -128,6 +128,7 @@ const Contact = () => {
 
   return (
     <>
+      <Navbar />
       {/* Hero Section */}
       <motion.section {...animations.fadeUp}>
         <img 
@@ -257,27 +258,40 @@ const Contact = () => {
               )}
             </motion.div>
 
-            <motion.button
-              type="submit"
-              className="mt-4 bg-orange-500 hover:bg-orange-600 text-white py-3 px-8 rounded-full transition duration-300 flex items-center gap-2 justify-center w-full md:w-auto disabled:opacity-70"
-              variants={animations.itemFade}
-              disabled={isSubmitting}
-              aria-busy={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <motion.div variants={animations.itemFade}>
+              <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                Subject
+              </label>
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                value={formData.subject}
+                onChange={handleChange}
+                placeholder="Subject of your inquiry"
+                className="border border-gray-300 p-3 rounded-md w-full focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </motion.div>
+
+            <motion.div variants={animations.itemFade}>
+              <button
+                type="submit"
+                className="w-full bg-orange-500 text-white font-bold py-3 px-6 rounded-md hover:bg-orange-600 transition duration-300 flex items-center justify-center space-x-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Sending...
-                </>
-              ) : (
-                <>
-                  Send Message <span className="text-xl">→</span>
-                </>
-              )}
-            </motion.button>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 18V12h7.5L6 12z" />
+                  </svg>
+                )}
+                <span>{isSubmitting ? "Sending..." : "Send Message"}</span>
+              </button>
+            </motion.div>
           </motion.form>
         </motion.div>
 
@@ -357,6 +371,7 @@ const Contact = () => {
       </motion.section>
 
       <ToastContainer position="top-right" autoClose={3000} />
+      <Footer />
     </>
   )
 }

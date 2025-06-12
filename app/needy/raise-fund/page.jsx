@@ -34,8 +34,10 @@ const RaiseFund = () => {
   const [selfie, setSelfie] = useState(null);
   const [kycLoading, setKycLoading] = useState(false);
 
+  const [fundTitle, setFundTitle] = useState("");
   const [fundAmount, setFundAmount] = useState("");
   const [fundDescription, setFundDescription] = useState("");
+  const [blogImgFile, setBlogImgFile] = useState(null);
   const [fundLoading, setFundLoading] = useState(false);
 
   const webcamRef = useRef(null);
@@ -61,6 +63,11 @@ const RaiseFund = () => {
   const handleImageUpload = (e, setImage) => {
     const file = e.target.files[0];
     if (file) setImage(file);
+  };
+
+  const handleFundImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) setBlogImgFile(file);
   };
 
   const captureSelfie = () => {
@@ -154,36 +161,40 @@ const RaiseFund = () => {
 
   const submitFundRaise = async (e) => {
     e.preventDefault();
-    if (!fundAmount || Number(fundAmount) <= 0 || !fundDescription.trim()) {
-      alert("Please enter valid fund details");
+    if (!fundTitle.trim() || !fundAmount || Number(fundAmount) <= 0 || !fundDescription.trim() || !blogImgFile) {
+      alert("Please fill all fund details and upload an image");
       return;
     }
 
     setFundLoading(true);
     try {
       const user = auth.currentUser;
-      const userDocRef = doc(db, "users", user.uid);
+      if (!user) {
+        alert("User not logged in.");
+        setFundLoading(false);
+        return;
+      }
 
-      const newRequest = {
-        amount: Number(fundAmount),
+      const blogImageUrl = await uploadToCloudinary(blogImgFile, "fund_requests");
+
+      await addDoc(collection(db, "fundRequests"), {
+        userId: user.uid,
+        title: fundTitle.trim(),
         description: fundDescription.trim(),
+        amountRequested: Number(fundAmount),
+        amountRaised: 0, // Initially 0
         status: "pending",
         createdAt: new Date(),
-      };
-
-      const userSnap = await getDoc(userDocRef);
-      const existingData = userSnap.exists() ? userSnap.data() : {};
-      const existingRequests = existingData.fundRequests || [];
-
-      await updateDoc(userDocRef, {
-        fundRequests: [...existingRequests, newRequest],
+        blogImg: blogImageUrl,
       });
 
-      alert("Fundraising request submitted!");
+      alert("Fundraising request submitted successfully. Please wait for approval.");
+      setFundTitle("");
       setFundAmount("");
       setFundDescription("");
+      setBlogImgFile(null);
     } catch (err) {
-      console.error(err);
+      console.error("Error submitting fund request: ", err);
       alert("Failed to submit fund request");
     }
     setFundLoading(false);
@@ -426,6 +437,26 @@ const RaiseFund = () => {
                 className="group"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                <label className="text-sm font-medium text-orange-600 mb-1 block">
+                  Fund Title
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={fundTitle}
+                    onChange={(e) => setFundTitle(e.target.value)}
+                    placeholder="e.g., Medical expenses for a child..."
+                    className="w-full bg-white p-4 rounded-xl border-2 border-gray-300 group-hover:border-[#ff5528] transition-all duration-300 focus:outline-none focus:border-orange-500"
+                    required
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528]/5 to-[#ff784e]/5 rounded-xl pointer-events-none"></div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="group"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}>
                 <label className="text-sm font-medium  text-orange-600 mb-1 block">
                   Your Story
                 </label>
@@ -436,6 +467,25 @@ const RaiseFund = () => {
                     placeholder="Tell us why you need help..."
                     rows={4}
                     className="w-full bg-white p-4 rounded-xl border-2 border-gray-300 group-hover:border-[#ff5528] resize-none transition-all duration-300 focus:outline-none focus:border-orange-500"
+                    required
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528]/5 to-[#ff784e]/5 rounded-xl pointer-events-none"></div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="group"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+                <label className="text-sm font-medium text-orange-600 mb-1 block">
+                  Upload Image for Fund Request
+                </label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFundImageUpload}
+                    className="file-input bg-white border-2 border-gray-300 group-hover:border-[#ff5528] rounded-xl p-3 w-full transition-all duration-300 focus:outline-none focus:border-orange-500"
                     required
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-[#ff5528]/5 to-[#ff784e]/5 rounded-xl pointer-events-none"></div>

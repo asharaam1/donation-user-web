@@ -12,41 +12,116 @@ import {
   where,
   onSnapshot,
   orderBy,
+  getDocs,
+  doc,
+  getDoc,
 } from "firebase/firestore";
+import Link from "next/link";
 
 const NeedyHome = () => {
   const router = useRouter();
   const auth = getAuth(app);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [posts, setPosts] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         router.push("/auth/login");
       } else {
         setCheckingAuth(false);
 
-        const q = query(
-          collection(db, "publicPosts"),
-          where("status", "==", "approved"),
-          orderBy("createdAt", "desc")
-        );
+        try {
+          const fundRequestsQuery = query(
+            collection(db, "fundRequests"),
+            where("status", "==", "approved"),
+            orderBy("createdAt", "desc")
+          );
 
-        const unsubscribePosts = onSnapshot(q, (snapshot) => {
-          const data = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setPosts(data);
-        });
+          const unsubscribePosts = onSnapshot(fundRequestsQuery, async (snapshot) => {
+            try {
+              const fetchedPosts = await Promise.all(
+                snapshot.docs.map(async (docSnap) => {
+                  const fund = docSnap.data();
+                  const userRef = doc(db, 'users', fund.userId);
+                  const userSnap = await getDoc(userRef);
+                  const user = userSnap.data();
+                  
+                  return {
+                    id: docSnap.id,
+                    title: fund.title,
+                    description: fund.description,
+                    amountRequested: fund.amountRequested,
+                    amountRaised: fund.amountRaised || 0,
+                    imageUrl: fund.blogImg || user?.profileImageUrl || '/default-fund-img.png',
+                    userName: user?.fullName || 'Unknown',
+                    createdAt: fund.createdAt?.toDate ? fund.createdAt.toDate() : fund.createdAt,
+                  };
+                })
+              );
+              setPosts(fetchedPosts);
+              setLoadingPosts(false);
+            } catch (error) {
+              console.error("Error processing fund requests:", error);
+              setLoadingPosts(false);
+            }
+          }, (error) => {
+            if (error.code === 'failed-precondition') {
+              console.error("Index not ready. Please create the required index:", error.message);
+              // Fallback to a simpler query without ordering
+              const simpleQuery = query(
+                collection(db, "fundRequests"),
+                where("status", "==", "approved")
+              );
+              
+              const unsubscribeSimple = onSnapshot(simpleQuery, async (snapshot) => {
+                try {
+                  const fetchedPosts = await Promise.all(
+                    snapshot.docs.map(async (docSnap) => {
+                      const fund = docSnap.data();
+                      const userRef = doc(db, 'users', fund.userId);
+                      const userSnap = await getDoc(userRef);
+                      const user = userSnap.data();
+                      
+                      return {
+                        id: docSnap.id,
+                        title: fund.title,
+                        description: fund.description,
+                        amountRequested: fund.amountRequested,
+                        amountRaised: fund.amountRaised || 0,
+                        imageUrl: fund.blogImg || user?.profileImageUrl || '/default-fund-img.png',
+                        userName: user?.fullName || 'Unknown',
+                        createdAt: fund.createdAt?.toDate ? fund.createdAt.toDate() : fund.createdAt,
+                      };
+                    })
+                  );
+                  // Sort the posts client-side
+                  fetchedPosts.sort((a, b) => b.createdAt - a.createdAt);
+                  setPosts(fetchedPosts);
+                  setLoadingPosts(false);
+                } catch (error) {
+                  console.error("Error processing fund requests (fallback):", error);
+                  setLoadingPosts(false);
+                }
+              });
+              return () => unsubscribeSimple();
+            } else {
+              console.error("Error fetching approved fund requests:", error);
+              setLoadingPosts(false);
+            }
+          });
 
-        return () => unsubscribePosts();
+          return () => unsubscribePosts();
+        } catch (error) {
+          console.error("Error setting up fund requests query:", error);
+          setLoadingPosts(false);
+        }
       }
     });
 
-    return () => unsubscribe();
-  }, [auth, router]);
+    return () => unsubscribeAuth();
+  }, [auth, router, db]);
 
   if (checkingAuth) {
     return (
@@ -125,7 +200,11 @@ const NeedyHome = () => {
       <section className="max-w-5xl mx-auto px-6 py-16">
         <h2 className="text-3xl font-semibold mb-8">Approved Fund Requests</h2>
 
-        {posts.length === 0 ? (
+        {loadingPosts ? (
+          <div className="flex items-center justify-center min-h-[200px]">
+            <p className="text-lg font-semibold animate-pulse">Loading fund requests...</p>
+          </div>
+        ) : posts.length === 0 ? (
           <p className="text-gray-500">No approved fund requests yet.</p>
         ) : (
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -136,29 +215,30 @@ const NeedyHome = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}>
-                {post.userImage && (
+                {post.imageUrl && (
                   <img
-                    src={post.userImage}
-                    alt="Profile"
-                    className="w-14 h-14 rounded-full mb-3 object-cover border"
+                    src={post.imageUrl}
+                    alt={post.title}
+                    className="w-full h-48 object-cover rounded-md mb-3"
                   />
                 )}
-                <h3 className="text-xl font-semibold mb-2">
-                  {post.description}
-                </h3>
-                <p className="text-orange-600 font-medium mb-1">
-                  Amount: ${post.amount}
+                <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  {post.description.substring(0, 100)}...
                 </p>
-                <p className="text-sm text-gray-600">
-                  {new Date(
-                    post.createdAt?.toDate?.() || post.createdAt
-                  ).toLocaleString()}
-                </p>
-                {post.name && (
-                  <p className="text-sm text-gray-500 italic">
-                    By: {post.name}
-                  </p>
-                )}
+                <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
+                  <span>Raised: <span className="font-semibold">Rs {(post.amountRaised || 0).toLocaleString()}</span></span>
+                  <span>Target: <span className="font-semibold">Rs {(post.amountRequested || 0).toLocaleString()}</span></span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                  <div
+                    className="bg-orange-500 h-2.5 rounded-full"
+                    style={{
+                      width: `${((post.amountRaised || 0) / (post.amountRequested || 1)) * 100 || 0}%`,
+                    }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-500 italic mb-4">By: {post.userName} on {new Date(post.createdAt).toLocaleDateString()}</p>
               </motion.div>
             ))}
           </div>
