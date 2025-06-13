@@ -14,6 +14,8 @@ import {
   getDocs,
   query,
   where,
+  onSnapshot,
+  orderBy,
 } from "firebase/firestore";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
 
@@ -39,6 +41,10 @@ const RaiseFund = () => {
   const [fundDescription, setFundDescription] = useState("");
   const [blogImgFile, setBlogImgFile] = useState(null);
   const [fundLoading, setFundLoading] = useState(false);
+
+  const [fundRequests, setFundRequests] = useState([]);
+  const [totalCases, setTotalCases] = useState(0);
+  const [totalDonatedAmount, setTotalDonatedAmount] = useState(0);
 
   const webcamRef = useRef(null);
 
@@ -129,10 +135,6 @@ const RaiseFund = () => {
       ]);
       // const user = auth.currentUser;
 
-      await updateDoc(doc(db, "kycRequests", kycDocId), {
-        status: "approved", // or "rejected"
-        reviewedby: adminUid,
-      });
       await addDoc(collection(db, "kycRequests"), {
         userId: user.uid,
         cnicFrontUrl: frontUrl,
@@ -199,6 +201,41 @@ const RaiseFund = () => {
     }
     setFundLoading(false);
   };
+
+  useEffect(() => {
+    const fundRequestsRef = collection(db, "fundRequests");
+    const q = query(
+      fundRequestsRef, 
+      where("userId", "==", auth.currentUser.uid),
+      orderBy("createdAt", "desc")
+    );
+
+    console.log("Setting up fund requests listener for user:", auth.currentUser.uid);
+
+    const unsubscribeFundRequests = onSnapshot(q, async (snapshot) => {
+      console.log("Fund requests snapshot received, docs count:", snapshot.docs.length);
+      
+      let totalRaisedForAllRequests = 0;
+      const fetchedRequests = [];
+
+      for (const docSnap of snapshot.docs) {
+        const fundRequestData = { id: docSnap.id, ...docSnap.data() };
+        console.log("Processing fund request:", fundRequestData);
+        fetchedRequests.push(fundRequestData);
+        totalRaisedForAllRequests += fundRequestData.amountRaised || 0;
+      }
+
+      console.log("Setting fund requests:", fetchedRequests);
+      setFundRequests(fetchedRequests);
+      setTotalCases(fetchedRequests.length);
+      setTotalDonatedAmount(totalRaisedForAllRequests);
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribeFundRequests();
+    };
+  }, []);
 
   if (loading) {
     return (
