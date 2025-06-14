@@ -1,4 +1,11 @@
+'use client'
+
+import React from 'react'
+import { useRouter } from 'next/navigation'
+
 export default function AboutUsSection() {
+  const router = useRouter()
+
   return (
     <section className="bg-gradient-to-r m-20 from-orange-50 via-white to-white py-16 px-6 flex flex-col md:flex-row items-center justify-center max-w-7xl mx-auto">
 
@@ -57,7 +64,10 @@ export default function AboutUsSection() {
 
         {/* Bottom Row */}
         <div className="flex flex-col sm:flex-row items-center sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <button className="flex items-center space-x-2 border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-full hover:bg-orange-500 hover:text-white transition">
+          <button 
+            onClick={() => router.push('/donor/give')}
+            className="flex items-center space-x-2 border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-full hover:bg-orange-500 hover:text-white transition"
+          >
             <span>Donate Now</span>
             <span className="text-xl">→</span>
           </button>
