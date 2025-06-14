@@ -135,7 +135,7 @@ const RaiseFund = () => {
       ]);
       // const user = auth.currentUser;
 
-      await addDoc(collection(db, "kycRequests"), {
+      await setDoc(doc(db, "kycRequests", user.uid), {
         userId: user.uid,
         cnicFrontUrl: frontUrl,
         cnicBackUrl: backUrl,
