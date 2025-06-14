@@ -1,6 +1,11 @@
+'use client'
+
 import React from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function page() {
+  const router = useRouter()
+
   return (
     <div className="w-full bg-white py-16">
       <div className="max-w-7xl mx-auto px-4 md:px-16 lg:px-24">
@@ -30,8 +35,11 @@ export default function page() {
               </div>
             </div>
             <h3 className="text-xl font-bold mb-4">Caring For The Elderly And Vulnerable Strategy</h3>
-            <button className="flex items-center px-6 py-2 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mt-auto">
-              READ MORE <span className="ml-2 text-xl">➜</span>
+            <button 
+              onClick={() => router.push('/donor/give')}
+              className="flex items-center px-6 py-2 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mt-auto"
+            >
+              DONATE NOW <span className="ml-2 text-xl">➜</span>
             </button>
           </div>
 
@@ -49,8 +57,11 @@ export default function page() {
               </div>
             </div>
             <h3 className="text-xl font-bold mb-4">Our Goal Is Help The Poor Child Around The World</h3>
-            <button className="flex items-center px-6 py-2 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mt-auto">
-              READ MORE <span className="ml-2 text-xl">➜</span>
+            <button 
+              onClick={() => router.push('/donor/give')}
+              className="flex items-center px-6 py-2 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mt-auto"
+            >
+              DONATE NOW <span className="ml-2 text-xl">➜</span>
             </button>
           </div>
 
@@ -68,8 +79,11 @@ export default function page() {
               </div>
             </div>
             <h3 className="text-xl font-bold mb-4">Education For Poor Children Is A Must Now</h3>
-            <button className="flex items-center px-6 py-2 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mt-auto">
-              READ MORE <span className="ml-2 text-xl">➜</span>
+            <button 
+              onClick={() => router.push('/donor/give')}
+              className="flex items-center px-6 py-2 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mt-auto"
+            >
+              DONATE NOW <span className="ml-2 text-xl">➜</span>
             </button>
           </div>
 

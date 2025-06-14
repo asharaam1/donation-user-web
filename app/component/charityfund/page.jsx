@@ -1,4 +1,10 @@
-export default function page() {
+'use client';
+import React from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function CharityFund() {
+  const router = useRouter();
+
   return (
     <section className="bg-gray-800 h-150 text-white py-30 px-6">
       {/* Heading */}
@@ -24,7 +30,7 @@ export default function page() {
             Providing access to quality education and learning resources for underprivileged children.
           </p>
 
-          <div className="flex justify-between w-full text-sm mb-2 px-2">
+          {/* <div className="flex justify-between w-full text-sm mb-2 px-2">
             <span className="font-medium">Raised<br/>45,000$</span>
             <span className="font-medium">Goal<br/>120,000$</span>
           </div>
@@ -34,9 +40,12 @@ export default function page() {
               className="bg-green-500 h-2.5 rounded-full"
               style={{ width: "37%" }}
             ></div>
-          </div>
+          </div> */}
 
-          <button className="flex items-center justify-center px-6 py-2 border border-orange-500 text-orange-500 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition">
+          <button 
+            onClick={() => router.push('/donor/give')}
+            className="flex items-center justify-center px-6 py-2 border border-orange-500 text-orange-500 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition"
+          >
             DONATE NOW
             <span className="ml-2 text-lg">➜</span>
           </button>
@@ -54,7 +63,7 @@ export default function page() {
             Ensuring access to medical care, vaccinations, and health awareness programs.
           </p>
 
-          <div className="flex justify-between w-full text-sm mb-2 px-2">
+          {/* <div className="flex justify-between w-full text-sm mb-2 px-2">
             <span className="font-medium">Raised<br/>60,000$</span>
             <span className="font-medium">Goal<br/>150,000$</span>
           </div>
@@ -64,9 +73,12 @@ export default function page() {
               className="bg-green-500 h-2.5 rounded-full"
               style={{ width: "40%" }}
             ></div>
-          </div>
+          </div> */}
 
-          <button className="flex items-center justify-center px-6 py-2 border border-orange-500 text-orange-500 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition">
+          <button 
+            onClick={() => router.push('/donor/give')}
+            className="flex items-center justify-center px-6 py-2 border border-orange-500 text-orange-500 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition"
+          >
             DONATE NOW
             <span className="ml-2 text-lg">➜</span>
           </button>
@@ -84,7 +96,7 @@ export default function page() {
             Supporting sustainable projects that uplift communities and create long-term impact.
           </p>
 
-          <div className="flex justify-between w-full text-sm mb-2 px-2">
+          {/* <div className="flex justify-between w-full text-sm mb-2 px-2">
             <span className="font-medium">Raised<br/>30,000$</span>
             <span className="font-medium">Goal<br/>80,000$</span>
           </div>
@@ -94,9 +106,12 @@ export default function page() {
               className="bg-green-500 h-2.5 rounded-full"
               style={{ width: "37%" }}
             ></div>
-          </div>
+          </div> */}
 
-          <button className="flex items-center justify-center px-6 py-2 border border-orange-500 text-orange-500 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition">
+          <button 
+            onClick={() => router.push('/donor/give')}
+            className="flex items-center justify-center px-6 py-2 border border-orange-500 text-orange-500 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition"
+          >
             DONATE NOW
             <span className="ml-2 text-lg">➜</span>
           </button>

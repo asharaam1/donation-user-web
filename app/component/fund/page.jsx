@@ -1,6 +1,10 @@
-import React from 'react'
+'use client';
+import React from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function () {
+export default function Fund() {
+  const router = useRouter();
+
   return (
     <div className="flex flex-col md:flex-row w-full mt-100 min-h-[400px]">
   
@@ -39,7 +43,10 @@ export default function () {
         </div>
 
         {/* Donate Button */}
-        <button className="flex items-center justify-center px-8 py-4 bg-orange-500 text-white rounded-full font-bold text-lg w-fit">
+        <button 
+          onClick={() => router.push('/donor/give')}
+          className="flex items-center justify-center px-8 py-4 bg-orange-500 text-white rounded-full font-bold text-lg w-fit"
+        >
           DONATE NOW <span className="ml-2 text-xl">➜</span>
         </button>
 

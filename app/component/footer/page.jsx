@@ -1,6 +1,11 @@
+'use client'
+
 import React from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function page() {
+  const router = useRouter()
+
   return (
     <footer className="bg-black text-gray-300 pt-12 pb-6 px-6 md:px-16">
 
@@ -53,11 +58,11 @@ export default function page() {
         <div>
           <h4 className="text-white text-lg font-semibold mb-4">Quick Links</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="#" className="hover:text-white">About Us</a></li>
-            <li><a href="#" className="hover:text-white">Get Involved</a></li>
-            <li><a href="#" className="hover:text-white">Donate</a></li>
-            <li><a href="#" className="hover:text-white">Events</a></li>
-            <li><a href="#" className="hover:text-white">Contact</a></li>
+            <li><button onClick={() => router.push('/about')} className="hover:text-white">About Us</button></li>
+            <li><button onClick={() => router.push('/donor/give')} className="hover:text-white">Get Involved</button></li>
+            <li><button onClick={() => router.push('/donor/give')} className="hover:text-white">Donate</button></li>
+            <li><button onClick={() => router.push('/donor/give')} className="hover:text-white">Events</button></li>
+            <li><button onClick={() => router.push('/contact')} className="hover:text-white">Contact</button></li>
           </ul>
         </div>
 

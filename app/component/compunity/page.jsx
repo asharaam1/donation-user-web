@@ -1,6 +1,11 @@
+'use client'
+
 import React from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function page() {
+  const router = useRouter()
+
   return (
     <div>
 
@@ -20,7 +25,10 @@ export default function page() {
         <div className="flex flex-wrap justify-center gap-4">
 
           {/* Button 1 */}
-          <button className="flex items-center bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold space-x-2 shadow-md hover:bg-yellow-500 transition">
+          <button 
+            onClick={() => router.push('/donor/give')}
+            className="flex items-center bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold space-x-2 shadow-md hover:bg-yellow-500 transition"
+          >
             <span>DONATE NOW</span>
             <span className="bg-black text-white rounded-full p-1">➜</span>
           </button>

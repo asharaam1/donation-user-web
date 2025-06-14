@@ -1,6 +1,10 @@
+'use client';
 import React from 'react'
+import { useRouter } from 'next/navigation';
 
-export default function page() {
+export default function Support() {
+  const router = useRouter();
+
   return (
     <div className="w-full bg-amber-50 py-16">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-12 px-4 md:px-16 lg:px-24">
@@ -35,7 +39,10 @@ export default function page() {
           </div>
 
           {/* Button */}
-          <button className="flex items-center px-8 py-4 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit">
+          <button 
+            onClick={() => router.push('/donor/give')}
+            className="flex items-center px-8 py-4 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit"
+          >
             DONATE NOW <span className="ml-2 text-xl">➜</span>
           </button>
         </div>

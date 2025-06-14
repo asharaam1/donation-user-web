@@ -1,9 +1,13 @@
+'use client';
 import React from 'react'
+import { useRouter } from 'next/navigation';
 
 export default function LiftHumanity() {
+  const router = useRouter();
+
   return (
     <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 py-20 px-4">
-    
+
       {/* Left Card */}
       <div
         className="relative rounded-2xl p-10 text-white flex flex-col justify-between"
@@ -20,7 +24,10 @@ export default function LiftHumanity() {
             Your support helps us provide food, shelter, and education to those in need.
           </p>
         </div>
-        <button className="flex items-center px-6 py-3 bg-transparent border-2 border-white rounded-full text-white font-bold w-fit hover:bg-white hover:text-orange-500 transition">
+        <button
+          onClick={() => router.push('/donor/give')}
+          className="flex items-center px-6 py-3 bg-transparent border-2 border-white rounded-full text-white font-bold w-fit hover:bg-white hover:text-orange-500 transition"
+        >
           DONATE NOW <span className="ml-2 text-xl">➜</span>
         </button>
       </div>
@@ -41,7 +48,10 @@ export default function LiftHumanity() {
             Together, we can create a positive impact in communities that need it most.
           </p>
         </div>
-        <button className="flex items-center px-6 py-3 bg-transparent border-2 border-white rounded-full text-white font-bold w-fit hover:bg-white hover:text-green-600 transition">
+        <button
+          onClick={() => router.push('/donor/give')}
+          className="flex items-center px-6 py-3 bg-transparent border-2 border-white rounded-full text-white font-bold w-fit hover:bg-white hover:text-green-600 transition"
+        >
           JOIN NOW <span className="ml-2 text-xl">➜</span>
         </button>
       </div>

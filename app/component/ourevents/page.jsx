@@ -1,6 +1,10 @@
-import React from 'react'
+'use client';
+import React from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function page() {
+export default function OurEvents() {
+  const router = useRouter();
+
   return (
     <div className="w-full bg-white py-16">
       <div className="max-w-7xl mx-auto px-4 md:px-16 lg:px-24">
@@ -36,7 +40,10 @@ export default function page() {
               <p className="flex items-center text-gray-700 mb-6">
                 <span className="text-orange-500 text-xl mr-2">📍</span> 6391 Elgin St. Celina, 10299
               </p>
-              <button className="flex items-center justify-center px-8 py-3 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mx-auto">
+              <button 
+                onClick={() => router.push('/donor/give')}
+                className="flex items-center justify-center px-8 py-3 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mx-auto"
+              >
                 DONATE NOW <span className="ml-2 text-xl">➜</span>
               </button>
             </div>
@@ -62,7 +69,10 @@ export default function page() {
               <p className="flex items-center text-gray-700 mb-6">
                 <span className="text-orange-500 text-xl mr-2">📍</span> 6391 Elgin St. Celina, 10299
               </p>
-              <button className="flex items-center justify-center px-8 py-3 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mx-auto">
+              <button 
+                onClick={() => router.push('/donor/give')}
+                className="flex items-center justify-center px-8 py-3 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mx-auto"
+              >
                 DONATE NOW <span className="ml-2 text-xl">➜</span>
               </button>
             </div>
@@ -88,7 +98,10 @@ export default function page() {
               <p className="flex items-center text-gray-700 mb-6">
                 <span className="text-orange-500 text-xl mr-2">📍</span> 6391 Elgin St. Celina, 10299
               </p>
-              <button className="flex items-center justify-center px-8 py-3 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mx-auto">
+              <button 
+                onClick={() => router.push('/donor/give')}
+                className="flex items-center justify-center px-8 py-3 border-2 border-orange-500 text-black font-semibold rounded-full hover:bg-orange-500 hover:text-white transition w-fit mx-auto"
+              >
                 DONATE NOW <span className="ml-2 text-xl">➜</span>
               </button>
             </div>

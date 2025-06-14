@@ -1,7 +1,10 @@
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function HeroSection() {
+  const router = useRouter();
+
   return (
     <div
       className="relative w-full h-[600px] flex items-center bg-cover bg-center"
@@ -15,11 +18,14 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-r from-green-400 via-blue-500 to-orange-300 opacity-60 mix-blend-screen z-0"></div>
 
       <div className="relative z-10 max-w-5xl mx-auto flex flex-col justify-center h-full text-white px-6 md:px-0">
-        <p className="text-3xl text-black font-serif mb-2">Serving Pakistan’s Communities.</p>
+        <p className="text-3xl text-black font-serif mb-2">Serving Pakistan's Communities.</p>
         <h1 className="text-5xl sm:text-7xl font-serif mb-8  leading-tight">
           Together, we can <br /> uplift lives <br /> and build hope
         </h1>
-        <button className="flex items-center px-6 py-3 border border-orange-500 text-orange-500 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition w-fit">
+        <button 
+          onClick={() => router.push('/donor/give')}
+          className="flex items-center px-6 py-3 border border-orange-500 text-orange-500 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition w-fit"
+        >
           DONATE NOW
           <span className="ml-2 text-lg">➜</span>
         </button>

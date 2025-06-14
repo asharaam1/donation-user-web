@@ -1,6 +1,9 @@
+'use client';
 import React from 'react'
+import { useRouter } from 'next/navigation';
 
 export default function Donation() {
+  const router = useRouter();
   const amounts = [
     { label: "Rs. 1,000", value: 1000 },
     { label: "Rs. 2,000", value: 2000 },
@@ -10,6 +13,11 @@ export default function Donation() {
     { label: "Rs. 10,000", value: 10000 },
     { label: "Rs. 50,000", value: 50000 },
   ];
+
+  const handleDonate = (e) => {
+    e.preventDefault();
+    router.push('/donor/give');
+  };
 
   return (
       <main className="max-h-screen py-10 flex items-center justify-center">
@@ -42,7 +50,7 @@ export default function Donation() {
 
           <div className="flex-1 bg-white p-6">
             <h2 className="text-3xl font-serif mb-6">Easy Donation</h2>
-            <form className="space-y-5">
+            <form className="space-y-5" onSubmit={handleDonate}>
               <input
                 type="text"
                 placeholder="Name...."

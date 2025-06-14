@@ -22,8 +22,8 @@ export default function BlogDetailsPage() {
   const [donations, setDonations] = useState([]);
 
   useEffect(() => {
-    let unsubscribeAuth = () => {}; // Initialize with no-op function
-    let unsubscribeBlog = () => {}; // Initialize with no-op function
+    let unsubscribeAuth = () => { }; // Initialize with no-op function
+    let unsubscribeBlog = () => { }; // Initialize with no-op function
 
     unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       if (!user) {
@@ -56,7 +56,7 @@ export default function BlogDetailsPage() {
         async (docSnap) => {
           if (docSnap.exists()) {
             const fund = docSnap.data();
-            
+
             // Set initial blog data immediately
             setBlog({
               id: docSnap.id,
@@ -145,13 +145,18 @@ export default function BlogDetailsPage() {
     setSubmitMessage(null);
 
     try {
+      // Get needy's name from users collection
+      const needyDoc = await getDoc(doc(db, "users", blog.userId));
+      const needyName = needyDoc.exists() ? needyDoc.data().fullName : "Unknown User";
+
       const donationData = {
         donorId: currentUser.uid,
         donorName: currentUser.fullName || "Anonymous Donor",
-        needyId: blog.userId, // The userId on the fund request is the needyId
+        needyId: blog.userId,
+        needyName: needyName,
         fundRequestId: blog.id,
         amount: parseFloat(donationAmount),
-        message: donationMessage, // Store the comment as a message
+        message: donationMessage,
         donatedAt: serverTimestamp(),
       };
 
@@ -198,7 +203,7 @@ export default function BlogDetailsPage() {
       <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-8">
           <div className="relative">
-            <img src={blog.userImg} className="w-full h-64 object-cover" alt={blog.title} />
+            <img src={blog.blogImg} className="w-full h-64 object-cover" alt={blog.title} />
             <div className="absolute left-4 bottom-4 bg-orange-500 text-white rounded px-3 py-1 flex flex-col items-center shadow-md">
               <span className="text-base font-bold leading-none">{day}</span>
               <span className="text-xs font-semibold leading-none">{month}</span>
@@ -236,19 +241,19 @@ export default function BlogDetailsPage() {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
           <h2 className="text-3xl font-bold mb-2 text-gray-900">Make a Donation</h2>
           <p className="text-gray-600 mb-6 text-sm">Your contribution can make a significant difference. Please enter your donation details below.</p>
-          
+
           <form onSubmit={handleSubmitDonation} className="space-y-6">
             <div>
-              <input 
-                type="number" 
-                placeholder="Donation Amount (Rs)" 
+              <input
+                type="number"
+                placeholder="Donation Amount (Rs)"
                 value={donationAmount}
                 onChange={(e) => setDonationAmount(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 min="1"
               />
             </div>
-            <textarea 
+            <textarea
               placeholder="Your Message (Optional)"
               rows="6"
               value={donationMessage}
@@ -261,8 +266,8 @@ export default function BlogDetailsPage() {
                   {submitMessage.text}
                 </p>
               )}
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold rounded-full transition hover:bg-orange-600 shadow-md disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
                 disabled={submitting}
               >
@@ -278,7 +283,7 @@ export default function BlogDetailsPage() {
         {/* Display Donations Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mt-8">
           <h2 className="text-3xl font-bold mb-6 text-gray-900">Donations ({donations.length})</h2>
-          
+
           {donations.length === 0 ? (
             <p className="text-gray-600 text-center">No donations yet. Be the first to contribute!</p>
           ) : (
