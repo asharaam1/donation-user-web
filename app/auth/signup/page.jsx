@@ -20,7 +20,7 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [mobile, setMobile] = useState("");
-  const [country, setCountry] = useState("");
+  const [city, setCity] = useState("");
   const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -85,7 +85,7 @@ export default function Signup() {
 
       if (role === "needy") {
         userData.mobile = mobile;
-        userData.country = country;
+        userData.city = city;
       }
 
       await setDoc(doc(db, "users", user.uid), userData);
@@ -183,9 +183,9 @@ export default function Signup() {
 
               <input
                 type="text"
-                placeholder="Country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
                 required
                 className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff5528]"
               />

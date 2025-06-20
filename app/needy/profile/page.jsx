@@ -159,7 +159,7 @@ const NeedyProfile = () => {
               <strong>Mobile:</strong> {userData.mobile || "N/A"}
             </p>
             <p>
-              <strong>Country:</strong> {userData.country || "N/A"}
+              <strong>City:</strong> {userData.city || "N/A"}
             </p>
           </div>
 
