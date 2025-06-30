@@ -56,7 +56,7 @@ export default function Navbar() {
 
   return (
     <header className="w-full shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 py-7 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
         {/* Logo Section */}
         <div className="flex items-center gap-2 justify-center">
           <Image

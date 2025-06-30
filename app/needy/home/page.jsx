@@ -47,7 +47,7 @@ const NeedyHome = () => {
                   const userRef = doc(db, 'users', fund.userId);
                   const userSnap = await getDoc(userRef);
                   const user = userSnap.data();
-                  
+
                   return {
                     id: docSnap.id,
                     title: fund.title,
@@ -74,7 +74,7 @@ const NeedyHome = () => {
                 collection(db, "fundRequests"),
                 where("status", "==", "approved")
               );
-              
+
               const unsubscribeSimple = onSnapshot(simpleQuery, async (snapshot) => {
                 try {
                   const fetchedPosts = await Promise.all(
@@ -83,7 +83,7 @@ const NeedyHome = () => {
                       const userRef = doc(db, 'users', fund.userId);
                       const userSnap = await getDoc(userRef);
                       const user = userSnap.data();
-                      
+
                       return {
                         id: docSnap.id,
                         title: fund.title,
@@ -211,34 +211,39 @@ const NeedyHome = () => {
             {posts.map((post, index) => (
               <motion.div
                 key={post.id}
-                className="bg-white border border-gray-300 rounded-xl p-6 shadow-md"
+                className="bg-white border border-gray-300 rounded-xl p-6 shadow-md flex flex-col justify-between hover:shadow-lg transition-shadow duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}>
-                {post.imageUrl && (
-                  <img
-                    src={post.imageUrl}
-                    alt={post.title}
-                    className="w-full h-48 object-cover rounded-md mb-3"
-                  />
-                )}
-                <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  {post.description.substring(0, 100)}...
-                </p>
-                <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
-                  <span>Raised: <span className="font-semibold">Rs {(post.amountRaised || 0).toLocaleString()}</span></span>
-                  <span>Target: <span className="font-semibold">Rs {(post.amountRequested || 0).toLocaleString()}</span></span>
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+              >
+                <div>
+                  {post.imageUrl && (
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="w-full h-48 object-cover rounded-md mb-3"
+                    />
+                  )}
+                  <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    {post.description.substring(0, 100)}...
+                  </p>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-                  <div
-                    className="bg-orange-500 h-2.5 rounded-full"
-                    style={{
-                      width: `${((post.amountRaised || 0) / (post.amountRequested || 1)) * 100 || 0}%`,
-                    }}
-                  ></div>
+                <div>
+                  <div className="flex justify-between items-center text-sm text-gray-700 mb-2">
+                    <span>Raised: <span className="font-semibold">Rs {(post.amountRaised || 0).toLocaleString()}</span></span>
+                    <span>Target: <span className="font-semibold">Rs {(post.amountRequested || 0).toLocaleString()}</span></span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                    <div
+                      className="bg-orange-500 h-2.5 rounded-full"
+                      style={{
+                        width: `${((post.amountRaised || 0) / (post.amountRequested || 1)) * 100 || 0}%`,
+                      }}
+                    ></div>
+                  </div>
+                  <p className="text-sm text-gray-500 italic mb-4">By: {post.userName} on {new Date(post.createdAt).toLocaleDateString()}</p>
                 </div>
-                <p className="text-sm text-gray-500 italic mb-4">By: {post.userName} on {new Date(post.createdAt).toLocaleDateString()}</p>
               </motion.div>
             ))}
           </div>

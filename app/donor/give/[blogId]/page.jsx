@@ -141,11 +141,21 @@ export default function BlogDetailsPage() {
       return;
     }
 
+    const amountToDonate = parseFloat(donationAmount);
+    const remainingAmount = (blog.amountRequested || 0) - (blog.amountRaised || 0);
+
+    if (amountToDonate > remainingAmount) {
+      setSubmitMessage({
+        type: "error",
+        text: `Only Rs ${remainingAmount.toLocaleString()} is remaining. Please reduce your amount.`,
+      });
+      return;
+    }
+
     setSubmitting(true);
     setSubmitMessage(null);
 
     try {
-      // Get needy's name from users collection
       const needyDoc = await getDoc(doc(db, "users", blog.userId));
       const needyName = needyDoc.exists() ? needyDoc.data().fullName : "Unknown User";
 
@@ -155,29 +165,24 @@ export default function BlogDetailsPage() {
         needyId: blog.userId,
         needyName: needyName,
         fundRequestId: blog.id,
-        amount: parseFloat(donationAmount),
+        amount: amountToDonate,
         message: donationMessage,
         donatedAt: serverTimestamp(),
       };
 
-      console.log("Donation data being sent to Firebase:", donationData);
-
       await addDoc(collection(db, "donations"), donationData);
 
-      // Optionally, update amountRaised in the fundRequest document
+      // Update amountRaised
       const fundRequestRef = doc(db, "fundRequests", blog.id);
-      await getDoc(fundRequestRef).then(docSnap => {
-        if (docSnap.exists()) {
-          const currentAmountRaised = docSnap.data().amountRaised || 0;
-          // This is a simple update. For concurrent updates, use transactions or Cloud Functions.
-          // For this example, we'll just update the amountRaised.
-          // A real-world application would use a transaction or Cloud Function to avoid race conditions
-          // when multiple donations come in simultaneously.
-          updateDoc(doc(db, "fundRequests", blog.id), {
-            amountRaised: currentAmountRaised + parseFloat(donationAmount)
-          });
-        }
-      });
+      const docSnap = await getDoc(fundRequestRef);
+      if (docSnap.exists()) {
+        const currentAmountRaised = docSnap.data().amountRaised || 0;
+        const newAmount = currentAmountRaised + amountToDonate;
+
+        await updateDoc(fundRequestRef, {
+          amountRaised: newAmount,
+        });
+      }
 
       setSubmitMessage({ type: "success", text: "Thank you for your donation!" });
       setDonationAmount("");
